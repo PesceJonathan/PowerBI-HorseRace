@@ -36,6 +36,7 @@ import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
+import { GenerateRanks } from "./GenerateRanks";
 import { VisualSettings } from "./settings";
 export class Visual implements IVisual {
     private target: HTMLElement;
@@ -44,7 +45,6 @@ export class Visual implements IVisual {
     private textNode: Text;
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
         this.target = options.element;
         this.updateCount = 0;
         if (document) {
@@ -56,6 +56,7 @@ export class Visual implements IVisual {
             new_p.appendChild(new_em);
             this.target.appendChild(new_p);
         }
+        GenerateRanks();
     }
 
     public update(options: VisualUpdateOptions) {
