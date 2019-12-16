@@ -37,6 +37,8 @@ import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
 import { VisualSettings } from "./settings";
+import {HorseRaceGraph} from "./HorseRaceGraph";
+
 export class Visual implements IVisual {
     private target: HTMLElement;
     private updateCount: number;
@@ -44,7 +46,6 @@ export class Visual implements IVisual {
     private textNode: Text;
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
         this.target = options.element;
         this.updateCount = 0;
         if (document) {
@@ -60,10 +61,7 @@ export class Visual implements IVisual {
 
     public update(options: VisualUpdateOptions) {
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = (this.updateCount++).toString();
-        }
+        HorseRaceGraph.render();
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
