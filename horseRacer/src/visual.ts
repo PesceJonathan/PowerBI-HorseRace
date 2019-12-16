@@ -38,30 +38,26 @@ import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnume
 
 import { VisualSettings } from "./settings";
 import {HorseRaceGraph} from "./HorseRaceGraph";
+import * as d3 from "d3"; 
 
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private updateCount: number;
     private settings: VisualSettings;
-    private textNode: Text;
+    private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+
 
     constructor(options: VisualConstructorOptions) {
-        this.target = options.element;
-        this.updateCount = 0;
-        if (document) {
-            const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
-            const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
+        this.svg = d3.select(options.element)
+        .append('svg');
     }
 
     public update(options: VisualUpdateOptions) {
-        this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        HorseRaceGraph.render();
+        let width: number = options.viewport.width;
+        let height: number = options.viewport.height;
+        this.svg.attr("width", width);
+        this.svg.attr("height", height);
+
+        let graph: HorseRaceGraph = new HorseRaceGraph();
+        graph.render(this.svg, null, width, height);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

@@ -10,9 +10,9 @@ export interface DataValue {
     rankedPosition: number[],
 }
 
-let data: HorseGraphData = {
+export const dataTemp: HorseGraphData = {
     domain: ["Jan", "Feb", "March", "April", "May", "June", "July", "August"],
-    rankPositions: 4,
+    rankPositions: 3,
     values: [
         {
             name: "Microsoft",
