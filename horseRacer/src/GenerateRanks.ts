@@ -1,6 +1,8 @@
+import { values } from "d3";
+
 export interface HorseGraphData {
     domain: string[];
-    rankPositions: number;
+    numElements: number;
     values: DataValue[];
 }
 
@@ -12,7 +14,7 @@ export interface DataValue {
 
 export const data: HorseGraphData = {
     domain: ["Jan", "Feb", "March", "April", "May", "June", "July", "August"],
-    rankPositions: 3,
+    numElements: 3,
     values: [
         {
             name: "Microsoft",
@@ -33,5 +35,24 @@ export const data: HorseGraphData = {
 }
 
 export const GenerateRanks = () => {
-    console.log("Hello World");
+    var rank:number = 0;
+    var smallest:number = 0;
+    var index:number = 0;
+    var values = data.values;
+
+    for (var i:number = 0; i < data.domain.length; i++) { //Shift DateValue values
+        rank = values.length;
+        while (rank > 0) { //Rank each value in DataValue values
+            smallest = Infinity;
+            index = 0;
+            for (var j:number = 0; j < values.length; j++) { //Shift HorseGraphData values
+                if(values[j].values[i] < smallest && !values[j].rankedPosition[i]) {
+                    smallest = values[j].values[i];
+                    index = j;
+                }
+            }
+        values[index].rankedPosition[i] = rank--;
+        }
+    }
+    return values;
 }
