@@ -1,15 +1,60 @@
 import { DataValue, HorseGraphData, dataTemp} from "./tempData"; 
 import * as d3 from "d3";
+import { Line } from "d3";
 
 
 export class HorseRaceGraph {
     "use strict"
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private scales: Scales;
+    private line: Line<any>;
 
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
-        debugger;
         this.setUpGraph(svg, dataTemp, width, height);
+        this.drawPaths(dataTemp);
+        this.drawInitialDots(dataTemp, this.scales, 0);
+        this.moveTheDots(data, this.scales, 1);
+    }
+
+    private drawInitialDots(data: HorseGraphData, scales: Scales, domainNumber: number) {
+        var initialDots = this.svg.selectAll(".dots").data(data.values).attr("class", "dots");
+        
+        initialDots.enter()
+            .append("circle")
+            .classed("dots", true)
+            .attr("r", 10)
+            .attr("cx", scales.xScale(data.domain[domainNumber]))
+            .attr("cy", (d,i) => scales.yScale(d.rankedPosition[domainNumber]))
+            .attr("fill", (d,i) => d.colour)
+            .attr("stroke", "black");
+    }
+
+    private moveTheDots(data: HorseGraphData, scales: Scales, domainNumber: number) {
+        debugger;
+        let initialDots = this.svg.selectAll(".dots").data(data.values).attr("class", "dots");
+
+        let promise: Promise<void> = initialDots.transition()
+        .duration(1000)
+        .attr("cx", scales.xScale(data.domain[domainNumber]))
+        .attr("cy", (d,i) => scales.yScale(d.rankedPosition[domainNumber]))
+        .end();
+
+        if (data.domain.values.length <= domainNumber) 
+            promise.then(() => this.moveTheDots(data, scales, domainNumber++));
+    }
+
+    private drawPaths(data: HorseGraphData) {
+        let paths = this.svg.selectAll(".line")
+        //@ts-ignore
+            .data(data.values.map(d => d3.zip(data.domain, d.rankedPosition)))
+            .attr("class", "line");
+
+        paths.enter()
+            .append("path")
+            .attr("class","line")
+            .attr("d", this.line)
+            .attr("stroke", "red")
+            .attr("fill", "none");
     }
 
 
@@ -32,6 +77,9 @@ export class HorseRaceGraph {
 
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.rankPositions);
+        
+        //Set up the line function
+        this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
     }
 
 
