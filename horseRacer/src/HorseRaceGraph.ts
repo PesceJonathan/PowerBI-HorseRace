@@ -1,6 +1,6 @@
-import { DataValue, HorseGraphData, dataTemp, HorseInformation} from "./tempData"; 
 import * as d3 from "d3";
-import { Line, D3BrushEvent } from "d3";
+import { Line } from "d3";
+import { DataValue, HorseGraphData, HorseInformation, Scales } from "./Types";
 
 
 export class HorseRaceGraph {
@@ -21,6 +21,15 @@ export class HorseRaceGraph {
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
 
+    /**
+     * Function that will render the horse racer visual onto the SVG and will
+     * begin it's transformation.
+     * 
+     * @param {d3.Selection<SVGGElement, unknown, HTMLElement, any>} svg SVG element for the horse racer component to be appended onto 
+     * @param {HorseGraphData} data The data that the horse racer visual will be representing 
+     * @param {number} width The width of the screen
+     * @param {number} height The height of the screen
+     */
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
         //Set up the variables
         this.transitionDuration = 2000;
@@ -33,6 +42,7 @@ export class HorseRaceGraph {
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
 
+        //Set up the graph elements i.e. axis, line function, scales
         this.setUpGraph(svg, data, width, height);
 
         //Set up the data
@@ -44,13 +54,19 @@ export class HorseRaceGraph {
             } as HorseInformation;
         });
 
+        //Append the elements in the starting position
         this.SetUpInitialElements(structuredData);
+
+        //Begin the transition of all the elements
         this.transitionElement = d3.transition()
                                 .delay(this.delayStartTime)
                                 .duration(this.transitionDuration)
                                 .on("start", this.transitionSequence);
     }
 
+    /**
+     * The function that will move all the elements based on the transition phase it is at
+     */
     private transitionSequence() {
         this.horseEndCircles
             .transition()
@@ -87,6 +103,11 @@ export class HorseRaceGraph {
             this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
     }
 
+    /**
+     * Set up all the horse elements in their starting positions
+     * 
+     * @param data The data used to place the horse elements in their starting position
+     */
     private SetUpInitialElements(data: HorseInformation[]) {
         this.horseElements = this.svg.selectAll(".horseElement")
             .data(data)
@@ -127,6 +148,7 @@ export class HorseRaceGraph {
             .attr("fill", (d: HorseInformation) => d.colour)
             .attr("dy", "0.3em");
 
+        //Set up the clip path to hide all lines at the start and the span the entire height of the graph
         this.clipPath = this.svg.append("clipPath")
                             .attr("id", "clipPathElement")
                             .append("rect")
@@ -136,7 +158,14 @@ export class HorseRaceGraph {
                             .attr("width", 0);
     }
 
-    private appendHorseDots(xPos: number, horseElements, radius: number): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
+    /**
+     * Append circles into the given selection
+     * 
+     * @param {number} xPos Starting xPos of the 
+     * @param {d3.Selection} horseElements The selection on which to append the cirlces too
+     * @param {number} radius The radius size of the circles
+     */
+    private appendHorseDots(xPos: number, horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>, radius: number): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
         return horseElements.append("circle")
                 .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
                 .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
@@ -213,10 +242,4 @@ export class HorseRaceGraph {
             .style("color", colour)
             .call(d3.axisTop(scales.xScale));
     }
-}
-
-
-interface Scales {
-    xScale: d3.ScalePoint<string>,
-    yScale: d3.ScaleLinear<number, number>
 }

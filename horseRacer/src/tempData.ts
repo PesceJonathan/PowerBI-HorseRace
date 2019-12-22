@@ -1,28 +1,4 @@
-import { Color, color } from "d3";
-
-export interface HorseGraphData {
-    domain: string[];
-    rankPositions: number;
-    values: DataValue[];
-}
-
-export interface HorseInformation {
-    values: string[][];
-    colour: string;
-    name: string;
-}
-
-export interface DataValue {
-    name: string,
-    values: number[],
-    rankedPosition: number[],
-    colour: string
-}
-
-export interface Point {
-    x: number,
-    y: number
-}
+import { HorseGraphData } from "./Types";
 
 export const dataTemp: HorseGraphData = {
     domain: ["Jan", "Feb", "March", "April", "May", "June", "July", "August"],
