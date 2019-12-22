@@ -6,6 +6,12 @@ export interface HorseGraphData {
     values: DataValue[];
 }
 
+export interface HorseInformation {
+    values: string[][];
+    colour: string;
+    name: string;
+}
+
 export interface DataValue {
     name: string,
     values: number[],

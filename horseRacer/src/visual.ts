@@ -39,6 +39,7 @@ import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnume
 import { VisualSettings } from "./settings";
 import {HorseRaceGraph} from "./HorseRaceGraph";
 import * as d3 from "d3"; 
+import { dataTemp } from "./tempData";
 
 export class Visual implements IVisual {
     private settings: VisualSettings;
@@ -57,7 +58,7 @@ export class Visual implements IVisual {
         this.svg.attr("height", height);
 
         let graph: HorseRaceGraph = new HorseRaceGraph();
-        graph.render(this.svg, null, width, height);
+        graph.render(this.svg, dataTemp, width, height);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

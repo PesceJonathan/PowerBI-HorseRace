@@ -1,6 +1,6 @@
-import { DataValue, HorseGraphData, dataTemp} from "./tempData"; 
+import { DataValue, HorseGraphData, dataTemp, HorseInformation} from "./tempData"; 
 import * as d3 from "d3";
-import { Line } from "d3";
+import { Line, D3BrushEvent } from "d3";
 
 
 export class HorseRaceGraph {
@@ -8,55 +8,85 @@ export class HorseRaceGraph {
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private scales: Scales;
     private line: Line<any>;
+    private horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private horseEndCircles:  d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private transitionDuration: number;
+    private currentDomainElement: number;
+    private delayStartTime: number;
+    private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
+    private domainLength: number;
 
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
-        this.setUpGraph(svg, dataTemp, width, height);
-        this.drawPaths(dataTemp);
-        this.drawInitialDots(dataTemp, this.scales, 0);
-        this.moveTheDots(data, this.scales, 1);
+        //Set up the variables
+        this.transitionDuration = 1000;
+        this.currentDomainElement = 1;
+        this.delayStartTime = 300;
+        this.domainLength = data.domain.length;
+
+        //Bind the transition sequence function to this
+        this.transitionSequence = this.transitionSequence.bind(this);
+
+        this.setUpGraph(svg, data, width, height);
+
+        //Set up the data
+        let structuredData: HorseInformation[] = data.values.map((elem: DataValue) => {
+            return {
+                values: d3.zip(data.domain, elem.rankedPosition.map(x => "" + x)),
+                name: elem.name,
+                colour: elem.colour
+            } as HorseInformation;
+        });
+
+        this.SetUpInitialElements(structuredData);
+        this.transitionElement = d3.transition()
+                                .delay(this.delayStartTime)
+                                .duration(this.transitionDuration)
+                                .on("start", this.transitionSequence);
     }
 
-    private drawInitialDots(data: HorseGraphData, scales: Scales, domainNumber: number) {
-        var initialDots = this.svg.selectAll(".dots").data(data.values).attr("class", "dots");
+    private transitionSequence() {
+        this.horseEndCircles
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
+            .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
         
-        initialDots.enter()
-            .append("circle")
-            .classed("dots", true)
-            .attr("r", 10)
-            .attr("cx", scales.xScale(data.domain[domainNumber]))
-            .attr("cy", (d,i) => scales.yScale(d.rankedPosition[domainNumber]))
-            .attr("fill", (d,i) => d.colour)
-            .attr("stroke", "black");
+        this.currentDomainElement++;
+
+        if (this.currentDomainElement < this.domainLength) 
+            this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
     }
 
-    private moveTheDots(data: HorseGraphData, scales: Scales, domainNumber: number) {
-        debugger;
-        let initialDots = this.svg.selectAll(".dots").data(data.values).attr("class", "dots");
+    private SetUpInitialElements(data: HorseInformation[]) {
+        this.horseElements = this.svg.selectAll(".horseElement")
+            .data(data)
+            .enter()
+            .append("g")
+            .classed("horseElement", true); 
 
-        let promise: Promise<void> = initialDots.transition()
-        .duration(1000)
-        .attr("cx", scales.xScale(data.domain[domainNumber]))
-        .attr("cy", (d,i) => scales.yScale(d.rankedPosition[domainNumber]))
-        .end();
-
-        if (data.domain.values.length <= domainNumber) 
-            promise.then(() => this.moveTheDots(data, scales, domainNumber++));
-    }
-
-    private drawPaths(data: HorseGraphData) {
-        let paths = this.svg.selectAll(".line")
-        //@ts-ignore
-            .data(data.values.map(d => d3.zip(data.domain, d.rankedPosition)))
-            .attr("class", "line");
-
-        paths.enter()
+        //Append the paths
+        this.horseElements
             .append("path")
-            .attr("class","line")
-            .attr("d", this.line)
-            .attr("stroke", "red")
-            .attr("fill", "none");
+            .attr("class", "line")
+            .attr("d", (d: HorseInformation) => this.line(d.values))
+            .style("stroke", (d : HorseInformation) => d.colour)
+            .style("fill", "none");
+            //TODO add a clip path that will make it look like the graph is being drawn.attr();
+
+        //Append the circles to the starting positions
+        this.appendHorseDots(0, this.horseElements);
+        this.horseEndCircles = this.appendHorseDots(0, this.horseElements);
     }
 
+    private appendHorseDots(xPos: number, horseElements): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
+        return horseElements.append("circle")
+                .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
+                .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
+                .attr("r", "5")
+                .attr("fill", (d: HorseInformation) => d.colour)
+                .attr("stroke", "black");
+    }
 
     /** 
      * The function will set up the graph before the lines are to be drawn. This means it will take care
