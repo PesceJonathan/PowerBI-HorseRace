@@ -36,9 +36,9 @@ import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
-import { GenerateRanks, data } from "./GenerateRanks";
+import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
-import { values } from "d3";
+
 export class Visual implements IVisual {
     private target: HTMLElement;
     private updateCount: number;
@@ -57,7 +57,6 @@ export class Visual implements IVisual {
             new_p.appendChild(new_em);
             this.target.appendChild(new_p);
         }
-        GenerateRanks();
     }
 
     public update(options: VisualUpdateOptions) {
@@ -67,32 +66,8 @@ export class Visual implements IVisual {
         if (this.textNode) {
             this.textNode.textContent = (this.updateCount++).toString();
         }
-
-        let domain = [];
-        for (var i = 0; i < dataView.categorical.categories[0].values.length; i++) {
-            domain.push(dataView.categorical.categories[0].values[i]);
-        }
-
-        let horses= [];
-        for (var i = 0; i < dataView.categorical.values.length; i++) {
-            let horse = {
-                name: dataView.categorical.values[i].source.groupName,
-                values: [],
-                ranks: []
-            }
-            for (var j = 0; j < dataView.categorical.values[i].values.length; j++) {
-                horse.values.push(dataView.categorical.values[i].values[j]); 
-            }
-            horses.push(horse);
-        }
-
-        let data = {
-            domain: domain,
-            numElements: dataView.categorical.values.length,
-            values: horses
-        }
-
-        console.table(data);
+        let data = DataProcessor(dataView);
+        console.log(data);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
