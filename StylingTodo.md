@@ -8,11 +8,11 @@
 - [x] Text size
 
 ## Data
-- [ ] Text
-- [ ] Color of points/lines
+- [x] Text
+- [x] Color of points/lines
 - [ ] Thickness of lines
-- [ ] Transparency of data
-- [ ] Size of data points
+- [x] Font family
+- [x] Size of data points
 - [ ] Change data point to image option
 
 ## Extras

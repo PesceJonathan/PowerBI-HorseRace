@@ -31,6 +31,7 @@ import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
 export class VisualSettings extends DataViewObjectsParser {
   public axes: Axes = new Axes();
+  public data: Data = new Data();
 }
 
 export class Axes {
@@ -39,4 +40,13 @@ export class Axes {
   public colour: string = "red";
   public fontSize: number = 5;
   public fontFamily: string = "Calibri";
+}
+
+export class Data {
+  public show: boolean = true;
+  public dataTitle: string = "";
+  public fontSize: number = 5;
+  public pointSize: number = 6;
+  public lineThickness: number = 5;
+  public fontFamily: string= "Calibri";
 }
