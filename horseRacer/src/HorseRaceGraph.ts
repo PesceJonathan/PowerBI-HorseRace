@@ -18,15 +18,17 @@ export class HorseRaceGraph {
     private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private domain: string[];
     private startAndEndCircleRadius: number;
+    private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
 
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
         //Set up the variables
-        this.transitionDuration = 1000;
+        this.transitionDuration = 2000;
         this.currentDomainElement = 1;
         this.delayStartTime = 300;
         this.domainLength = data.domain.length;
         this.domain = data.domain;
-        this.startAndEndCircleRadius = 8;
+        this.startAndEndCircleRadius = 4;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -57,11 +59,27 @@ export class HorseRaceGraph {
             .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
             .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
 
+
         this.clipPath
             .transition()
             .ease(d3.easeLinear)
             .duration(this.transitionDuration)
             .attr("width", this.scales.xScale(this.domain[this.currentDomainElement]));
+
+        this.rankNumber
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .text((d: HorseInformation) => d.values[this.currentDomainElement][1])
+            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
+            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+
+        this.horseName 
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
+            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
         
         this.currentDomainElement++;
 
@@ -84,26 +102,45 @@ export class HorseRaceGraph {
             .style("stroke", (d : HorseInformation) => d.colour)
             .style("fill", "none")
             .attr("clip-path", "url(#clipPathElement)");
-            //TODO add a clip path that will make it look like the graph is being drawn.attr();
+        
 
         //Append the circles to the starting positions
-        this.appendHorseDots(0, this.horseElements);
-        this.horseEndCircles = this.appendHorseDots(0, this.horseElements);
+        this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius);
+        this.horseEndCircles = this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius * 3);
+
+        //Append the rank into the circle
+        this.rankNumber = this.horseElements.append("text")
+            .text((d: HorseInformation) => d.values[0][1])
+            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
+            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+            .attr("font-weight", "bold")
+            .attr("fill", "white")
+            .attr("dy", "0.3em")
+            .attr("text-anchor", "middle");
+
+        this.horseName = this.horseElements.append("text")
+            .text((d: HorseInformation) => d.name)
+            .attr("transform", "translate(" + this.startAndEndCircleRadius * 4 + ", 0)")
+            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
+            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+            .attr("font-weight", "bold")
+            .attr("fill", (d: HorseInformation) => d.colour)
+            .attr("dy", "0.3em");
 
         this.clipPath = this.svg.append("clipPath")
                             .attr("id", "clipPathElement")
                             .append("rect")
                             .attr("x", this.scales.xScale(data[0].values[0][0]))
-                            .attr("y", 0)
-                            .attr("height", this.scales.yScale(1))
+                            .attr("y", -10)
+                            .attr("height", this.scales.yScale(data.length) + 10)
                             .attr("width", 0);
     }
 
-    private appendHorseDots(xPos: number, horseElements): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
+    private appendHorseDots(xPos: number, horseElements, radius: number): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
         return horseElements.append("circle")
                 .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
                 .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
-                .attr("r", this.startAndEndCircleRadius)
+                .attr("r", radius)
                 .attr("fill", (d: HorseInformation) => d.colour)
                 .attr("stroke", "black");
     }
@@ -118,12 +155,12 @@ export class HorseRaceGraph {
      * @param height 
      */
     private setUpGraph(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
-        const margin = { top: 20, right: 20, bottom: 20, left: 50 };
+        const margin = { top: 20, right: 100, bottom: 20, left: 50 };
 
-        this.svg = svg.attr("height", height)
-            .attr("width", width)
+        this.svg = svg.attr("height", height + margin.top + margin.bottom)
+            .attr("width", width + margin.right + margin.left)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.right + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.rankPositions);
@@ -147,7 +184,7 @@ export class HorseRaceGraph {
             .range([0, width]);
 
         //Create the y scale, which will for now be based on ranks (linear numbers)
-        var yScale = d3.scaleLinear().domain([data.values.length, 1])
+        var yScale = d3.scaleLinear().domain([1, data.values.length])
             .range([0, height]).nice();
 
         return {
