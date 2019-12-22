@@ -235,11 +235,18 @@ export class HorseRaceGraph {
         svg.append("g")
             .attr("class", "yAxis")
             .style("color", colour)
-            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets));
+            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1));
 
         svg.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
             .call(d3.axisTop(scales.xScale));
+    }
+
+    private getIntegerTicks(element) {
+        if (Math.floor(element) === element)
+            return element;
+        
+        return;
     }
 }
