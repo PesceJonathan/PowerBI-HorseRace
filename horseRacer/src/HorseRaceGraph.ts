@@ -41,6 +41,8 @@ export class HorseRaceGraph {
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
+        this.onExitOfElement = this.onExitOfElement.bind(this);
+        this.onHoverOfElement = this.onHoverOfElement.bind(this);
 
         //Set up the graph elements i.e. axis, line function, scales
         this.setUpGraph(svg, data, width, height);
@@ -120,9 +122,12 @@ export class HorseRaceGraph {
             .append("path")
             .attr("class", "line")
             .attr("d", (d: HorseInformation) => this.line(d.values))
-            .style("stroke", (d : HorseInformation) => d.colour)
+            .style("stroke", (d: HorseInformation) => d.colour)
+            .style("stroke-width", 5)
             .style("fill", "none")
-            .attr("clip-path", "url(#clipPathElement)");
+            .attr("clip-path", "url(#clipPathElement)")
+            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+            .on("mouseout", this.onExitOfElement);
         
 
         //Append the circles to the starting positions
@@ -153,8 +158,8 @@ export class HorseRaceGraph {
                             .attr("id", "clipPathElement")
                             .append("rect")
                             .attr("x", this.scales.xScale(data[0].values[0][0]))
-                            .attr("y", -10)
-                            .attr("height", this.scales.yScale(data.length) + 10)
+                            .attr("y", -this.scales.yScale(data.length) * 0.15)
+                            .attr("height", this.scales.yScale(data.length) * 1.3)
                             .attr("width", 0);
     }
 
@@ -172,6 +177,16 @@ export class HorseRaceGraph {
                 .attr("r", radius)
                 .attr("fill", (d: HorseInformation) => d.colour)
                 .attr("stroke", "black");
+    }
+
+    private onHoverOfElement(name: string) {
+        this.horseElements.style("opacity", 0.2);
+        console.log(this.horseElements.filter((d) => (d.name === name)));
+        this.horseElements.filter((d) => (d.name === name)).style("opacity", 1);
+    }
+
+    private onExitOfElement() {
+        this.horseElements.style("opacity", 1);
     }
 
     /** 
@@ -196,6 +211,10 @@ export class HorseRaceGraph {
         
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
+    }
+
+    private onClickOfGraph() {
+
     }
 
 
