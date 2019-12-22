@@ -15,6 +15,9 @@ export class HorseRaceGraph {
     private delayStartTime: number;
     private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
     private domainLength: number;
+    private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private domain: string[];
+    private startAndEndCircleRadius: number;
 
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
         //Set up the variables
@@ -22,6 +25,8 @@ export class HorseRaceGraph {
         this.currentDomainElement = 1;
         this.delayStartTime = 300;
         this.domainLength = data.domain.length;
+        this.domain = data.domain;
+        this.startAndEndCircleRadius = 8;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -51,6 +56,12 @@ export class HorseRaceGraph {
             .duration(this.transitionDuration)
             .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
             .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+
+        this.clipPath
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .attr("width", this.scales.xScale(this.domain[this.currentDomainElement]));
         
         this.currentDomainElement++;
 
@@ -71,19 +82,28 @@ export class HorseRaceGraph {
             .attr("class", "line")
             .attr("d", (d: HorseInformation) => this.line(d.values))
             .style("stroke", (d : HorseInformation) => d.colour)
-            .style("fill", "none");
+            .style("fill", "none")
+            .attr("clip-path", "url(#clipPathElement)");
             //TODO add a clip path that will make it look like the graph is being drawn.attr();
 
         //Append the circles to the starting positions
         this.appendHorseDots(0, this.horseElements);
         this.horseEndCircles = this.appendHorseDots(0, this.horseElements);
+
+        this.clipPath = this.svg.append("clipPath")
+                            .attr("id", "clipPathElement")
+                            .append("rect")
+                            .attr("x", this.scales.xScale(data[0].values[0][0]))
+                            .attr("y", 0)
+                            .attr("height", this.scales.yScale(1))
+                            .attr("width", 0);
     }
 
     private appendHorseDots(xPos: number, horseElements): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
         return horseElements.append("circle")
                 .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
                 .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
-                .attr("r", "5")
+                .attr("r", this.startAndEndCircleRadius)
                 .attr("fill", (d: HorseInformation) => d.colour)
                 .attr("stroke", "black");
     }
