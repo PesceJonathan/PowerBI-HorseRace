@@ -1,21 +1,11 @@
 # Styling TODO 
-
-## Title
-- [ ] on/off
-- [ ] Title text
-- [ ] Text size
-- [ ] Font family
-- [ ] Alignment of text
-- [ ] Color 
-
+ 
 ## Axes
-- [ ] On/off
-- [ ] Axes text
-- [ ] Font family
-- [ ] Alignment of axes (left,centered, right)
-- [ ] Color
-- [ ] Text size
-- [ ] Units (on/off)
+- [x] On/off
+- [x] Axes text
+- [x] Font family
+- [x] Color
+- [x] Text size
 
 ## Data
 - [ ] Text

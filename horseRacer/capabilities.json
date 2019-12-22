@@ -12,51 +12,133 @@
         }
     ],
     "objects": {
-        "dataPoint": {
-            "displayName": "Data colors",
-            "properties": {
-                "defaultColor": {
-                    "displayName": "Default color",
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
+        "objects": {
+            "axes": {
+                "displayName": "Axes",
+                "properties": {
+                    "show": {
+                        "displayName": "FFFFF",
+                        "type": {
+                            "bool": true
+                        }
+                    },
+                    "domainTitle": {
+                        "displayName": "Domain Title",
+                        "description": "Title to display describing x-axis",
+                        "type": {
+                            "text": true
+                        }
+                    },
+                    "colour": {
+                        "displayName": "Colour",
+                        "description": "The colour of the x-axis",
+                        "type": {
+                            "fill": {
+                                "solid": {
+                                    "color": true
+                                }
                             }
                         }
-                    }
-                },
-                "showAllDataPoints": {
-                    "displayName": "Show all",
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "fill": {
-                    "displayName": "Fill",
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
+                    },
+                    "fontSize": {
+                        "displayName": "Font Size",
+                        "description": "Size of the font of the text representing x-axis",
+                        "type": {
+                            "numeric": true
                         }
-                    }
-                },
-                "fillRule": {
-                    "displayName": "Color saturation",
-                    "type": {
-                        "fill": {}
-                    }
-                },
-                 "fontSize": {
-                    "displayName": "Text Size",
-                    "type": {
-                        "formatting": {
-                            "fontSize": true
+                    },
+                    "fontFamily": {
+                        "displayName": "Fonts",
+                        "description": "Font type describing x-axis",
+                        "type": {
+                            "enumeration": [
+                                {
+                                    "displayName": "Arial",
+                                    "value": "Arial"
+                                },
+                                {
+                                    "displayName": "Arial Black",
+                                    "value": "Arial Black"
+                                },
+                                {
+                                    "displayName": "Arial Unicode MS",
+                                    "value": "Arial Unicode MS"
+                                },
+                                {
+                                    "displayName": "Calibri",
+                                    "value": "Calibri"
+                                },
+                                {
+                                    "displayName": "Cambria",
+                                    "value": "Cambria"
+                                },
+                                {
+                                    "displayName": "Cambria Math",
+                                    "value": "Cambria Math"
+                                },
+                                {
+                                    "displayName": "Candara",
+                                    "value": "Candara"
+                                },
+                                {
+                                    "displayName": "Comic Sans MS",
+                                    "value": "Comic Sans MS"
+                                },
+                                {
+                                    "displayName": "Consolas",
+                                    "value": "Consolas"
+                                },
+                                {
+                                    "displayName": "Constantia",
+                                    "value": "Constantia"
+                                },
+                                {
+                                    "displayName": "Corbel",
+                                    "value": "Corbel"
+                                },
+                                {
+                                    "displayName": "Courier New",
+                                    "value": "Courier New"
+                                },
+                                {
+                                    "displayName": "Georgia",
+                                    "value": "Georgia"
+                                },
+                                {
+                                    "displayName": "Lucida Sans Unicode",
+                                    "value": "Lucida Sans Unicode"
+                                },
+                                {
+                                    "displayName": "Symbol",
+                                    "value": "Symbol"
+                                },
+                                {
+                                    "displayName": "Tahoma",
+                                    "value": "Tahoma"
+                                },
+                                {
+                                    "displayName": "Times New Roman",
+                                    "value": "Times New Roman"
+                                },
+                                {
+                                    "displayName": "Trebuchet MS",
+                                    "value": "Trebuchet MS"
+                                },
+                                {
+                                    "displayName": "Verdana",
+                                    "value": "Verdana"
+                                },
+                                {
+                                    "displayName": "Wingdings",
+                                    "value": "Wingdings"
+                                }
+                            ]
                         }
                     }
                 }
+    
             }
-        }
+        },
     },
     "dataViewMappings": [
         {
