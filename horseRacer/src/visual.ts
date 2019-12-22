@@ -67,7 +67,6 @@ export class Visual implements IVisual {
             this.textNode.textContent = (this.updateCount++).toString();
         }
         let data = DataProcessor(dataView);
-        console.log(data);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

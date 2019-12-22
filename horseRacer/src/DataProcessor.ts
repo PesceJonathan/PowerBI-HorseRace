@@ -2,7 +2,15 @@ import powerbi from "powerbi-visuals-api";
 import DataView = powerbi.DataView;
 import {GenerateRanks, DataValue} from "./GenerateRanks";
 
-
+/**
+ * Retrieving data from dataView 
+ * First for loop retrieves the domain 
+ * Second for loop retrieves the name and creates a new horse to store name, values and ranked position
+ * Third for loop retrieves the values which will be stored in each new horse
+ * A HorseGraphData object is created to store the information retrieved 
+ * That object will be sent to retrieve a rank and returned 
+ * @param dataView 
+ */
 export const DataProcessor = function(dataView: DataView) {
     let domain = [];
     for (var i = 0; i < dataView.categorical.categories[0].values.length; i++) {
