@@ -46,6 +46,8 @@ export class HorseRaceGraph {
         this.onExitOfElement = this.onExitOfElement.bind(this);
         this.onHoverOfElement = this.onHoverOfElement.bind(this);
 
+        d3.select("#horseGraph").remove();
+
         //Set up the graph elements i.e. axis, line function, scales
         this.setUpGraph(svg, data, width, height);
 
@@ -246,7 +248,8 @@ export class HorseRaceGraph {
         this.svg = svg.attr("height", height + margin.top + margin.bottom)
             .attr("width", width + margin.right + margin.left)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .attr("id", "horseGraph");
 
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.rankPositions);
