@@ -34,7 +34,7 @@ export class HorseRaceGraph {
      */
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
         //Set up the variables
-        this.transitionDuration = 2000;
+        this.transitionDuration = 5000;
         this.currentDomainElement = 1;
         this.delayStartTime = 1000;
         this.domainLength = data.domain.length;
@@ -111,7 +111,7 @@ export class HorseRaceGraph {
         if (this.currentDomainElement < this.domainLength) {
             this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
         } else {
-            setTimeout(this.redraw, 5000);
+            setTimeout(this.redraw, this.transitionDuration + 5000);
         }
 
     }
@@ -259,7 +259,7 @@ export class HorseRaceGraph {
             .attr("id", "horseGraph");
 
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
-        this.generateAxis(this.svg, this.scales, data.rankPositions);
+        this.generateAxis(this.svg, this.scales, data.numElements);
         
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));

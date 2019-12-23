@@ -2,7 +2,7 @@ import { HorseGraphData } from "./Types";
 
 export const dataTemp: HorseGraphData = {
     domain: ["Jan", "Feb", "March", "April", "May", "June", "July", "August"],
-    rankPositions: 3,
+    numElements: 3,
     values: [
         {
             name: "Microsoft",

@@ -2,7 +2,7 @@ import { Color, color } from "d3";
 
 export interface HorseGraphData {
     domain: string[];
-    rankPositions: number;
+    numElements: number;
     values: DataValue[];
 }
 

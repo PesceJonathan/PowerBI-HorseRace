@@ -1,6 +1,7 @@
 import powerbi from "powerbi-visuals-api";
 import DataView = powerbi.DataView;
-import {GenerateRanks, DataValue} from "./GenerateRanks";
+import {GenerateRanks} from "./GenerateRanks";
+import { DataValue } from "./Types";
 import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedColorPalette;
 
 /**
@@ -40,7 +41,8 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
         domain: domain,
         numElements: dataView.categorical.values.length,
         values: horses
-    }
+    };
 
-    return GenerateRanks(data);
+    data.values = GenerateRanks(data);
+    return data;
 }
