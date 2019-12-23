@@ -142,7 +142,9 @@ export class HorseRaceGraph {
             .attr("font-weight", "bold")
             .attr("fill", "white")
             .attr("dy", "0.3em")
-            .attr("text-anchor", "middle");
+            .attr("text-anchor", "middle")
+            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+            .on("mouseout", this.onExitOfElement);;
 
         this.horseName = this.horseElements.append("text")
             .text((d: HorseInformation) => d.name)
@@ -151,7 +153,9 @@ export class HorseRaceGraph {
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
             .attr("font-weight", "bold")
             .attr("fill", (d: HorseInformation) => d.colour)
-            .attr("dy", "0.3em");
+            .attr("dy", "0.3em")
+            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+            .on("mouseout", this.onExitOfElement);;
 
         //Set up the clip path to hide all lines at the start and the span the entire height of the graph
         this.clipPath = this.svg.append("clipPath")
@@ -176,7 +180,9 @@ export class HorseRaceGraph {
                 .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
                 .attr("r", radius)
                 .attr("fill", (d: HorseInformation) => d.colour)
-                .attr("stroke", "black");
+                .attr("stroke", "black")
+                .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+                .on("mouseout", this.onExitOfElement);
     }
 
     private onHoverOfElement(name: string) {
