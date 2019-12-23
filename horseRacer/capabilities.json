@@ -77,7 +77,7 @@
                         "select": [
                             {
                                 "for": {
-                                    "in": "value"
+                                    "in": "values"
                                 }
                             }
                         ]
