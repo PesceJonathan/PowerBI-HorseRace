@@ -36,7 +36,9 @@ import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
+import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
+
 export class Visual implements IVisual {
     private target: HTMLElement;
     private updateCount: number;
@@ -44,7 +46,6 @@ export class Visual implements IVisual {
     private textNode: Text;
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
         this.target = options.element;
         this.updateCount = 0;
         if (document) {
@@ -59,11 +60,13 @@ export class Visual implements IVisual {
     }
 
     public update(options: VisualUpdateOptions) {
+        let dataView: DataView = options.dataViews[0];
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
         console.log('Visual update', options);
         if (this.textNode) {
             this.textNode.textContent = (this.updateCount++).toString();
         }
+        let data = DataProcessor(dataView);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

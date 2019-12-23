@@ -1,13 +1,18 @@
 {
     "dataRoles": [
         {
-            "displayName": "Category Data",
-            "name": "category",
+            "displayName": "Axis",
+            "name": "axis",
             "kind": "Grouping"
         },
         {
-            "displayName": "Measure Data",
-            "name": "measure",
+            "displayName": "Legend",
+            "name": "legend",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Values",
+            "name": "values",
             "kind": "Measure"
         }
     ],
@@ -63,20 +68,20 @@
             "categorical": {
                 "categories": {
                     "for": {
-                        "in": "category"
-                    },
-                    "dataReductionAlgorithm": {
-                        "top": {}
+                        "in": "axis"
                     }
                 },
                 "values": {
-                    "select": [
-                        {
-                            "bind": {
-                                "to": "measure"
+                    "group": {
+                        "by": "legend",
+                        "select": [
+                            {
+                                "for": {
+                                    "in": "value"
+                                }
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
             }
         }
