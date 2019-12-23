@@ -31,10 +31,12 @@ import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
+import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedColorPalette;
 
 import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
@@ -44,6 +46,7 @@ export class Visual implements IVisual {
     private updateCount: number;
     private settings: VisualSettings;
     private textNode: Text;
+    private host: IVisualHost;
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
@@ -57,6 +60,7 @@ export class Visual implements IVisual {
             new_p.appendChild(new_em);
             this.target.appendChild(new_p);
         }
+        this.host = options.host;
     }
 
     public update(options: VisualUpdateOptions) {
@@ -66,7 +70,8 @@ export class Visual implements IVisual {
         if (this.textNode) {
             this.textNode.textContent = (this.updateCount++).toString();
         }
-        let data = DataProcessor(dataView);
+        let data = DataProcessor(dataView, this.host.colorPalette);
+        console.log(data);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

@@ -9,6 +9,7 @@ export interface HorseGraphData {
 
 export interface DataValue {
     name: string,
+    colour: string,
     values: number[],
     rankedPosition: number[],
 }

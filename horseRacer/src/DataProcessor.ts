@@ -1,6 +1,7 @@
 import powerbi from "powerbi-visuals-api";
 import DataView = powerbi.DataView;
 import {GenerateRanks, DataValue} from "./GenerateRanks";
+import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedColorPalette;
 
 /**
  * Retrieving data from dataView 
@@ -11,13 +12,11 @@ import {GenerateRanks, DataValue} from "./GenerateRanks";
  * That object will be sent to retrieve a rank and returned 
  * @param dataView 
  */
-export const DataProcessor = function(dataView: DataView) {
+export const DataProcessor = function(dataView: DataView, colorPalette: ISandboxExtendedColorPalette) {
     let domain = [];
     for (var i = 0; i < dataView.categorical.categories[0].values.length; i++) {
         domain.push(dataView.categorical.categories[0].values[i]);
     }
-
-    let ranks: number[] = [];
     let horses: DataValue[] = [];
 
     for (var i = 0; i < dataView.categorical.values.length; i++) {
@@ -26,10 +25,13 @@ export const DataProcessor = function(dataView: DataView) {
             values.push(dataView.categorical.values[i].values[j] as number); 
         }
 
+        let name: string = dataView.categorical.values[i].source.groupName as string;
+
         let horse: DataValue = {
-            name: dataView.categorical.values[i].source.groupName as string,
+            name: name,
+            colour: colorPalette.getColor(name).value,
             values: values,
-            rankedPosition: ranks
+            rankedPosition: [] as number[]
         }
         horses.push(horse);
     }
