@@ -20,6 +20,7 @@ export class HorseRaceGraph {
     private startAndEndCircleRadius: number;
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private elementClicked: string;
 
     /**
      * Function that will render the horse racer visual onto the SVG and will
@@ -34,10 +35,11 @@ export class HorseRaceGraph {
         //Set up the variables
         this.transitionDuration = 2000;
         this.currentDomainElement = 1;
-        this.delayStartTime = 300;
+        this.delayStartTime = 1000;
         this.domainLength = data.domain.length;
         this.domain = data.domain;
         this.startAndEndCircleRadius = 4;
+        this.elementClicked = "";
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -127,7 +129,8 @@ export class HorseRaceGraph {
             .style("fill", "none")
             .attr("clip-path", "url(#clipPathElement)")
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement);
+            .on("mouseout", this.onExitOfElement)
+            .on("click", (d: HorseInformation) => this.onClick(d.name));
         
 
         //Append the circles to the starting positions
@@ -144,7 +147,8 @@ export class HorseRaceGraph {
             .attr("dy", "0.3em")
             .attr("text-anchor", "middle")
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement);;
+            .on("mouseout", this.onExitOfElement)
+            .on("click", (d: HorseInformation) => this.onClick(d.name));
 
         this.horseName = this.horseElements.append("text")
             .text((d: HorseInformation) => d.name)
@@ -155,7 +159,8 @@ export class HorseRaceGraph {
             .attr("fill", (d: HorseInformation) => d.colour)
             .attr("dy", "0.3em")
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement);;
+            .on("mouseout", this.onExitOfElement)
+            .on("click", (d: HorseInformation) => this.onClick(d.name));
 
         //Set up the clip path to hide all lines at the start and the span the entire height of the graph
         this.clipPath = this.svg.append("clipPath")
@@ -182,17 +187,48 @@ export class HorseRaceGraph {
                 .attr("fill", (d: HorseInformation) => d.colour)
                 .attr("stroke", "black")
                 .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-                .on("mouseout", this.onExitOfElement);
+                .on("mouseout", this.onExitOfElement)
+                .on("click", (d: HorseInformation) => this.onClick(d.name));
     }
 
+    /**
+     * Event handler dealing with the onhover event, being to change the opacity of all lines
+     * except for the one being hovered (only works when no item is clicked)
+     * 
+     * @param name Name of the element that was clicked
+     */
     private onHoverOfElement(name: string) {
-        this.horseElements.style("opacity", 0.2);
-        console.log(this.horseElements.filter((d) => (d.name === name)));
-        this.horseElements.filter((d) => (d.name === name)).style("opacity", 1);
+        if (this.elementClicked === "")
+            this.changeOpacity(name);
     }
 
+    /**
+     * Event handler dealing with the exit of the hovering of an element, chaning all of the 
+     * opacities of the lines back to normal.
+     */
     private onExitOfElement() {
-        this.horseElements.style("opacity", 1);
+        if (this.elementClicked === "")
+            this.horseElements.style("opacity", 1);
+    }
+    
+    /**
+     * Event handler that will select and deselect an element when it has been clicked
+     * 
+     * @param name Name of the element that was clicked
+     */
+    private onClick(name: string) {
+        if (this.elementClicked === name) {
+            this.elementClicked = "";
+            this.horseElements.style("opacity", 1);
+        } else {
+            this.elementClicked = name;
+            this.changeOpacity(name);
+        }
+    }
+
+    private changeOpacity(name: string) {
+        this.horseElements.style("opacity", 0.2);
+        this.horseElements.filter((d) => (d.name === name)).style("opacity", 1);
     }
 
     /** 
@@ -218,11 +254,6 @@ export class HorseRaceGraph {
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
     }
-
-    private onClickOfGraph() {
-
-    }
-
 
     /**
      * Given the data, width and height of the svg, the function will generate a Scales datatype, containing
