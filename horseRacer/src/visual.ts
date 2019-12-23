@@ -31,24 +31,32 @@ import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
+import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedColorPalette;
 
+import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
 import {HorseRaceGraph} from "./HorseRaceGraph";
 import * as d3 from "d3"; 
 import { dataTemp } from "./tempData";
 
+
 export class Visual implements IVisual {
     private settings: VisualSettings;
+    private textNode: Text;
+    private host: IVisualHost;
+
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
 
     constructor(options: VisualConstructorOptions) {
         this.svg = d3.select(options.element)
         .append('svg');
+        this.host = options.host;
     }
 
     public update(options: VisualUpdateOptions) {
@@ -57,6 +65,10 @@ export class Visual implements IVisual {
         this.svg.attr("width", width);
         this.svg.attr("height", height);
 
+        let dataView: DataView = options.dataViews[0];
+        this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
+        let data = DataProcessor(dataView, this.host.colorPalette);
+      
         let graph: HorseRaceGraph = new HorseRaceGraph();
         graph.render(this.svg, dataTemp, width, height);
     }
