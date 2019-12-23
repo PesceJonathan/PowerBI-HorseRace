@@ -21,6 +21,7 @@ export class HorseRaceGraph {
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private elementClicked: string;
+    private redraw: () => void;
 
     /**
      * Function that will render the horse racer visual onto the SVG and will
@@ -68,6 +69,8 @@ export class HorseRaceGraph {
                                 .delay(this.delayStartTime)
                                 .duration(this.transitionDuration)
                                 .on("start", this.transitionSequence);
+
+        this.redraw = () => {this.render(svg, data, width, height)}
     }
 
     /**
@@ -105,8 +108,12 @@ export class HorseRaceGraph {
         
         this.currentDomainElement++;
 
-        if (this.currentDomainElement < this.domainLength) 
+        if (this.currentDomainElement < this.domainLength) {
             this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
+        } else {
+            setTimeout(this.redraw, 5000);
+        }
+
     }
 
     /**
