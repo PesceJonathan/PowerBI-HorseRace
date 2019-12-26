@@ -9,6 +9,7 @@ export class HorseRaceGraph {
     private horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseEndCircles: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private offScreenElementsClipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
@@ -116,12 +117,16 @@ export class HorseRaceGraph {
 
         //Check if we need to move the screen to adjust for elements going off screen
         if (this.numberOfElementsOnScreenAtOnce <= this.currentDomainElement) {
-            console.log(this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
-
             this.elementsWithOffScreenComponent.transition()
                 .ease(d3.easeLinear)
                 .duration(this.transitionDuration)
                 .attr("transform", "translate(" + (-1 * this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce])) + ", 0)");
+
+            //Move the clip path to follow
+            this.offScreenElementsClipPath.transition()
+                .duration(this.transitionDuration)
+                .ease(d3.easeLinear)
+                .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
         }
 
         if (this.currentDomainElement < this.domainLength) {
@@ -277,6 +282,15 @@ export class HorseRaceGraph {
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.numElements);
 
+        //Add the clippath element for the movable elements
+        this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
+            .attr("id", "clipPathForMovableElements")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -margin.top)
+            .attr("height", height + margin.top);
+
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
     }
@@ -325,7 +339,8 @@ export class HorseRaceGraph {
 
 
         //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
-        this.elementsWithOffScreenComponent = this.svg.append("g");
+        this.elementsWithOffScreenComponent = this.svg.append("g").attr("clip-path", "url(#clipPathForMovableElements)");
+
         this.elementsWithOffScreenComponent.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
