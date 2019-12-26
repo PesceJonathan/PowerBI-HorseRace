@@ -6,21 +6,24 @@ import { DataValue, HorseGraphData, HorseInformation, Scales } from "./Types";
 export class HorseRaceGraph {
     "use strict"
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    private horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private horseEndCircles: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
+    private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private elementsWithOffScreenComponent: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+
     private scales: Scales;
     private line: Line<any>;
-    private horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
-    private horseEndCircles:  d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private transitionDuration: number;
     private currentDomainElement: number;
     private delayStartTime: number;
-    private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
     private domainLength: number;
-    private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private domain: string[];
     private startAndEndCircleRadius: number;
-    private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
-    private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private elementClicked: string;
+    private numberOfElementsOnScreenAtOnce;
     private redraw: () => void;
 
     /**
@@ -34,13 +37,14 @@ export class HorseRaceGraph {
      */
     public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, width: number, height: number) {
         //Set up the variables
-        this.transitionDuration = 5000;
+        this.transitionDuration = 3000;
         this.currentDomainElement = 1;
         this.delayStartTime = 1000;
         this.domainLength = data.domain.length;
         this.domain = data.domain;
         this.startAndEndCircleRadius = 4;
         this.elementClicked = "";
+        this.numberOfElementsOnScreenAtOnce = 6;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -66,11 +70,11 @@ export class HorseRaceGraph {
 
         //Begin the transition of all the elements
         this.transitionElement = d3.transition()
-                                .delay(this.delayStartTime)
-                                .duration(this.transitionDuration)
-                                .on("start", this.transitionSequence);
+            .delay(this.delayStartTime)
+            .duration(this.transitionDuration)
+            .on("start", this.transitionSequence);
 
-        this.redraw = () => {this.render(svg, data, width, height)}
+        this.redraw = () => { this.render(svg, data, width, height) }
     }
 
     /**
@@ -99,14 +103,26 @@ export class HorseRaceGraph {
             .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
 
-        this.horseName 
+        this.horseName
             .transition()
             .ease(d3.easeLinear)
             .duration(this.transitionDuration)
             .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+
+
         
         this.currentDomainElement++;
+
+        //Check if we need to move the screen to adjust for elements going off screen
+        if (this.numberOfElementsOnScreenAtOnce <= this.currentDomainElement) {
+            console.log(this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
+
+            this.elementsWithOffScreenComponent.transition()
+                .ease(d3.easeLinear)
+                .duration(this.transitionDuration)
+                .attr("transform", "translate(" + (-1 * this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce])) + ", 0)");
+        }
 
         if (this.currentDomainElement < this.domainLength) {
             this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
@@ -122,11 +138,11 @@ export class HorseRaceGraph {
      * @param data The data used to place the horse elements in their starting position
      */
     private SetUpInitialElements(data: HorseInformation[]) {
-        this.horseElements = this.svg.selectAll(".horseElement")
+        this.horseElements = this.elementsWithOffScreenComponent.selectAll(".horseElement")
             .data(data)
             .enter()
             .append("g")
-            .classed("horseElement", true); 
+            .classed("horseElement", true);
 
         //Append the paths
         this.horseElements
@@ -140,7 +156,7 @@ export class HorseRaceGraph {
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
             .on("mouseout", this.onExitOfElement)
             .on("click", (d: HorseInformation) => this.onClick(d.name));
-        
+
 
         //Append the circles to the starting positions
         this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius);
@@ -173,12 +189,12 @@ export class HorseRaceGraph {
 
         //Set up the clip path to hide all lines at the start and the span the entire height of the graph
         this.clipPath = this.svg.append("clipPath")
-                            .attr("id", "clipPathElement")
-                            .append("rect")
-                            .attr("x", this.scales.xScale(data[0].values[0][0]))
-                            .attr("y", -this.scales.yScale(data.length) * 0.15)
-                            .attr("height", this.scales.yScale(data.length) * 1.3)
-                            .attr("width", 0);
+            .attr("id", "clipPathElement")
+            .append("rect")
+            .attr("x", this.scales.xScale(data[0].values[0][0]))
+            .attr("y", -this.scales.yScale(data.length) * 0.15)
+            .attr("height", this.scales.yScale(data.length) * 1.3)
+            .attr("width", 0);
     }
 
     /**
@@ -188,16 +204,16 @@ export class HorseRaceGraph {
      * @param {d3.Selection} horseElements The selection on which to append the cirlces too
      * @param {number} radius The radius size of the circles
      */
-    private appendHorseDots(xPos: number, horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>, radius: number): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>{
+    private appendHorseDots(xPos: number, horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>, radius: number): d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown> {
         return horseElements.append("circle")
-                .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
-                .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
-                .attr("r", radius)
-                .attr("fill", (d: HorseInformation) => d.colour)
-                .attr("stroke", "black")
-                .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-                .on("mouseout", this.onExitOfElement)
-                .on("click", (d: HorseInformation) => this.onClick(d.name));
+            .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[xPos][0]))
+            .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[xPos][1])))
+            .attr("r", radius)
+            .attr("fill", (d: HorseInformation) => d.colour)
+            .attr("stroke", "black")
+            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+            .on("mouseout", this.onExitOfElement)
+            .on("click", (d: HorseInformation) => this.onClick(d.name));
     }
 
     /**
@@ -219,7 +235,7 @@ export class HorseRaceGraph {
         if (this.elementClicked === "")
             this.horseElements.style("opacity", 1);
     }
-    
+
     /**
      * Event handler that will select and deselect an element when it has been clicked
      * 
@@ -260,7 +276,7 @@ export class HorseRaceGraph {
 
         this.scales = this.createScale(data, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.numElements);
-        
+
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
     }
@@ -274,9 +290,12 @@ export class HorseRaceGraph {
      * @param height The height of the svg element
      */
     private createScale(data: HorseGraphData, width: number, height: number): Scales {
+        //Calculate an adjusted width for when only a certain number of elements should be on screen
+        let adjustedWidth = (data.domain.length / this.numberOfElementsOnScreenAtOnce) * width;
+
         //We assume for now that the x-axis will be based on dates (since it is a horse race)
         var xScale = d3.scalePoint().domain(data.domain)
-            .range([0, width]);
+            .range([0, adjustedWidth]);
 
         //Create the y scale, which will for now be based on ranks (linear numbers)
         var yScale = d3.scaleLinear().domain([1, data.values.length])
@@ -298,21 +317,18 @@ export class HorseRaceGraph {
     private generateAxis(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, scales: Scales, numberOfElemets: number) {
         let colour = "black";
 
+        //Append the y-axis first so that it appears behind the line elements
         svg.append("g")
             .attr("class", "yAxis")
             .style("color", colour)
             .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1));
 
-        svg.append("g")
+
+        //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
+        this.elementsWithOffScreenComponent = this.svg.append("g");
+        this.elementsWithOffScreenComponent.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
             .call(d3.axisTop(scales.xScale));
-    }
-
-    private getIntegerTicks(element) {
-        if (Math.floor(element) === element)
-            return element;
-        
-        return;
     }
 }
