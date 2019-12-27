@@ -70,7 +70,7 @@ export class Visual implements IVisual {
         let data = DataProcessor(dataView, this.host.colorPalette);
       
         let graph: HorseRaceGraph = new HorseRaceGraph();
-        graph.render(this.svg, data, width, height);
+        graph.render(this.svg, data, false, width, height);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
