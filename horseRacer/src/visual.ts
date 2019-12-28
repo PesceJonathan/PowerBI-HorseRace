@@ -69,8 +69,13 @@ export class Visual implements IVisual {
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
         let data = DataProcessor(dataView, this.host.colorPalette);
       
+        let displaySettings = {
+            displayImages: true,
+            displayRank: false
+        }
+
         let graph: HorseRaceGraph = new HorseRaceGraph();
-        graph.render(this.svg, data, false, width, height);
+        graph.render(this.svg, data, displaySettings, false, width, height);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
