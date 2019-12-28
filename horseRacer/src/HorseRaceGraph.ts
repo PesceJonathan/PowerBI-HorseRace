@@ -198,7 +198,7 @@ export class HorseRaceGraph {
 
         if (displaySettings.displayImages) {
             this.imagesElements = this.horseElements.append('image')
-            .attr('xlink:href', 'http://lorempixel.com/200/200/')
+            .attr('xlink:href', (d: HorseInformation) => d.img)
             .attr('width', this.startAndEndCircleRadius * 4)
             .attr('height', this.startAndEndCircleRadius * 4)
             .attr("transform", "translate(0, " + this.startAndEndCircleRadius * -2 + ")")
