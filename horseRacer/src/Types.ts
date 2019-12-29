@@ -10,6 +10,7 @@ export interface HorseInformation {
     values: string[][];
     colour: string;
     name: string;
+    img?: string;
 }
 
 export interface DataValue {
@@ -27,4 +28,9 @@ export interface Point {
 export interface Scales {
     xScale: d3.ScalePoint<string>,
     yScale: d3.ScaleLinear<number, number>
+}
+
+export interface setUpSettings {
+    displayImages: boolean,
+    displayRank: boolean
 }
