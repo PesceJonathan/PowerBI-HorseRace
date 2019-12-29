@@ -28,6 +28,7 @@ export class HorseRaceGraph {
     private elementClicked: string;
     private numberOfElementsOnScreenAtOnce;
     private textFont: string;
+    private fontFamily: string;
     private redraw: () => void;
 
     /**
@@ -46,10 +47,11 @@ export class HorseRaceGraph {
         this.delayStartTime = settings.overall.delayTime;
         this.domainLength = data.domain.length;
         this.domain = data.domain;
-        this.startAndEndCircleRadius = settings.data.pointSize;
+        this.startAndEndCircleRadius = settings.data.dataSize;
         this.elementClicked = "";
         this.numberOfElementsOnScreenAtOnce = settings.overall.numberOfElementsOnAxis;
-        this.textFont = "0.3em";
+        this.textFont = settings.data.fontSize + "px";
+        this.fontFamily = settings.data.fontFamily;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -197,7 +199,12 @@ export class HorseRaceGraph {
 
 
         //Append the circles to the starting positions
-        this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius);
+        let startRadius = this.startAndEndCircleRadius;
+        if (startRadius >= 7) {
+            startRadius = 7;
+        }
+
+        this.appendHorseDots(0, this.horseElements, startRadius);
 
         if (displaySettings.displayImages) {
             this.imagesElements = this.horseElements.append('image')
@@ -222,8 +229,10 @@ export class HorseRaceGraph {
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
             .attr("font-weight", "bold")
             .attr("fill", "white")
-            .attr("dy", this.textFont)
+            .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) * 0.25)
             .attr("text-anchor", "middle")
+            .style("font-family", this.fontFamily)
+            .style("font-size", this.textFont)
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
             .on("mouseout", this.onExitOfElement)
             .on("click", (d: HorseInformation) => this.onClick(d.name));
@@ -237,7 +246,9 @@ export class HorseRaceGraph {
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
             .attr("font-weight", "bold")
             .attr("fill", (d: HorseInformation) => d.colour)
-            .attr("dy", this.textFont)
+            .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) / 2)
+            .style("font-size", this.textFont)
+            .style("font-family", this.fontFamily)
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
             .on("mouseout", this.onExitOfElement)
             .on("click", (d: HorseInformation) => this.onClick(d.name));

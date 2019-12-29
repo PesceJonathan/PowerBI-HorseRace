@@ -70,8 +70,8 @@ export class Visual implements IVisual {
       
         let displaySettings = {
             displayImages: this.imagesPresent(data),
-            displayRank: this.settings.overall.displayRank,
-            displayName: this.settings.overall.displayText
+            displayRank: this.settings.data.displayRank,
+            displayName: this.settings.data.displayText
         }
 
         let graph: HorseRaceGraph = new HorseRaceGraph();

@@ -25,20 +25,6 @@
         "overall": {
             "displayName": "Overall",
             "properties": {
-                "displayText": {
-                    "displayName": "Display Text",
-                    "description": "Display the name of the horse next to the horse",
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "displayRank": {
-                    "displayName": "Display Rank",
-                    "description": "Display the rank of the horse within the circle",
-                    "type": {
-                        "bool": true
-                    }
-                },
                 "transitionDuration": {
                     "displayName": "Duration Time",
                     "description": "The time it takes for every transition sequence to run",
@@ -61,7 +47,7 @@
                     }
                 },
                 "displayValuesOnAxis": {
-                    "displayName": "Axis is values",
+                    "displayName": "Axis is rank",
                     "description": "The y-axis will be represented by values and not ranks",
                     "type": {
                         "bool": true
@@ -72,15 +58,16 @@
         "data": {
             "displayName": "Data",
             "properties": {
-                "show": {
-                    "displayName": "Data Text",
+                "displayText": {
+                    "displayName": "Display Name",
+                    "description": "Display the name of the horse next to the horse",
                     "type": {
                         "bool": true
                     }
                 },
-                "dataTitle": {
-                    "displayName": "Data Title",
-                    "description": "Title to display describing data",
+                "displayRank": {
+                    "displayName": "Display Rank",
+                    "description": "Display the rank of the horse within the circle",
                     "type": {
                         "bool": true
                     }
@@ -191,7 +178,23 @@
         }
     },
     "dataViewMappings": [
-        {
+        {            
+            "conditions": [
+                {
+                    "axis": {
+                        "max": 1
+                    },
+                    "legend": {
+                        "max": 1
+                    },
+                    "values" :{
+                        "max": 1
+                    },
+                    "images": {   
+                        "max": 1
+                    }
+                }
+            ],
             "categorical": {
                 "categories": {
                     "select": [

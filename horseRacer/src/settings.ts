@@ -35,17 +35,15 @@ export class VisualSettings extends DataViewObjectsParser {
 }
 
 export class Data {
-  public show: boolean = true;
-  public dataTitle: string = "";
-  public fontSize: number = 5;
-  public pointSize: number = 10;
+  public fontSize: number = 15;
+  public dataSize: number = 10;
   public lineThickness: number = 5;
   public fontFamily: string= "Calibri";
+  public displayText: boolean = true;
+  public displayRank: boolean = true;
 }
 
 export class Overall {
-  public displayText: boolean = true;
-  public displayRank: boolean = true;
   public displayValuesOnAxis: boolean = false;
   public transitionDuration: number = 3000;
   public delayTime: number = 1000;
