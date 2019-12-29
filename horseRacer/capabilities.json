@@ -72,16 +72,23 @@
                         "bool": true
                     }
                 },
-                "fontSize": {
-                    "displayName": "Font Size",
-                    "description": "Size of the font of the text representing data",
+                "aggregateValues": {
+                    "displayName": "Aggregate Values",
+                    "description": "The values will display the running sum",
                     "type": {
-                        "numeric": true
+                        "bool": true
                     }
                 },
                 "dataSize": {
                     "displayName": "Horse Radius Size",
                     "description": "Radius of the point representing data",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "description": "Size of the font of the text representing data",
                     "type": {
                         "numeric": true
                     }

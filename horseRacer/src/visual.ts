@@ -66,7 +66,7 @@ export class Visual implements IVisual {
 
         let dataView: DataView = options.dataViews[0];
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        let data = DataProcessor(dataView, this.host.colorPalette);
+        let data = DataProcessor(dataView, this.host.colorPalette, this.settings.data.aggregateValues);
       
         let displaySettings = {
             displayImages: this.imagesPresent(data),

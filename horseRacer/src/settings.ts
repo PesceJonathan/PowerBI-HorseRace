@@ -41,6 +41,7 @@ export class Data {
   public fontFamily: string= "Calibri";
   public displayText: boolean = true;
   public displayRank: boolean = true;
+  public aggregateValues: boolean = false;
 }
 
 export class Overall {
