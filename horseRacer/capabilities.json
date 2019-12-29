@@ -22,136 +22,49 @@
         }
     ],
     "objects": {
-        "objects": {
-            "axes": {
-                "displayName": "Axes",
-                "properties": {
-                    "show": {
-                        "displayName": "FFFFF",
-                        "type": {
-                            "bool": true
-                        }
-                    },
-                    "domainTitle": {
-                        "displayName": "Domain Title",
-                        "description": "Title to display describing x-axis",
-                        "type": {
-                            "text": true
-                        }
-                    },
-                    "colour": {
-                        "displayName": "Colour",
-                        "description": "The colour of the x-axis",
-                        "type": {
-                            "fill": {
-                                "solid": {
-                                    "color": true
-                                }
-                            }
-                        }
-                    },
-                    "fontSize": {
-                        "displayName": "Font Size",
-                        "description": "Size of the font of the text representing x-axis",
-                        "type": {
-                            "numeric": true
-                        }
-                    },
-                    "fontFamily": {
-                        "displayName": "Fonts",
-                        "description": "Font type describing x-axis",
-                        "type": {
-                            "enumeration": [
-                                {
-                                    "displayName": "Arial",
-                                    "value": "Arial"
-                                },
-                                {
-                                    "displayName": "Arial Black",
-                                    "value": "Arial Black"
-                                },
-                                {
-                                    "displayName": "Arial Unicode MS",
-                                    "value": "Arial Unicode MS"
-                                },
-                                {
-                                    "displayName": "Calibri",
-                                    "value": "Calibri"
-                                },
-                                {
-                                    "displayName": "Cambria",
-                                    "value": "Cambria"
-                                },
-                                {
-                                    "displayName": "Cambria Math",
-                                    "value": "Cambria Math"
-                                },
-                                {
-                                    "displayName": "Candara",
-                                    "value": "Candara"
-                                },
-                                {
-                                    "displayName": "Comic Sans MS",
-                                    "value": "Comic Sans MS"
-                                },
-                                {
-                                    "displayName": "Consolas",
-                                    "value": "Consolas"
-                                },
-                                {
-                                    "displayName": "Constantia",
-                                    "value": "Constantia"
-                                },
-                                {
-                                    "displayName": "Corbel",
-                                    "value": "Corbel"
-                                },
-                                {
-                                    "displayName": "Courier New",
-                                    "value": "Courier New"
-                                },
-                                {
-                                    "displayName": "Georgia",
-                                    "value": "Georgia"
-                                },
-                                {
-                                    "displayName": "Lucida Sans Unicode",
-                                    "value": "Lucida Sans Unicode"
-                                },
-                                {
-                                    "displayName": "Symbol",
-                                    "value": "Symbol"
-                                },
-                                {
-                                    "displayName": "Tahoma",
-                                    "value": "Tahoma"
-                                },
-                                {
-                                    "displayName": "Times New Roman",
-                                    "value": "Times New Roman"
-                                },
-                                {
-                                    "displayName": "Trebuchet MS",
-                                    "value": "Trebuchet MS"
-                                },
-                                {
-                                    "displayName": "Verdana",
-                                    "value": "Verdana"
-                                },
-                                {
-                                    "displayName": "Wingdings",
-                                    "value": "Wingdings"
-                                }
-                            ]
-                        }
+        "overall": {
+            "displayName": "Overall",
+            "properties": {
+                "displayText": {
+                    "displayName": "Display Text",
+                    "description": "Display the name of the horse next to the horse",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "displayRank": {
+                    "displayName": "Display Rank",
+                    "description": "Display the rank of the horse within the circle",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "transitionDuration": {
+                    "displayName": "Duration Time",
+                    "description": "The time it takes for every transition sequence to run",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "delayStartTime": {
+                    "displayName": "Delay Start Time",
+                    "description": "The time the visual waits before beginning it's animation",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "numberOfElementsOnAxis": {
+                    "displayName": "Number of elements on the Axis",
+                    "description": "The number of elements that should be on the x-axis",
+                    "type": {
+                        "numeric": true
                     }
                 }
-    
             }
         },
         "data": {
             "displayName": "Data",
-            "properties" : {
+            "properties": {
                 "show": {
                     "displayName": "Data Text",
                     "type": {
@@ -173,7 +86,7 @@
                     }
                 },
                 "dataSize": {
-                    "displayName": "Data Size",
+                    "displayName": "Horse Radius Size",
                     "description": "Radius of the point representing data",
                     "type": {
                         "numeric": true

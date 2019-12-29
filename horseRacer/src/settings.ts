@@ -30,23 +30,23 @@ import { dataViewObjectsParser } from "powerbi-visuals-utils-dataviewutils";
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
 export class VisualSettings extends DataViewObjectsParser {
-  public axes: Axes = new Axes();
   public data: Data = new Data();
-}
-
-export class Axes {
-  public show: boolean = true;
-  public domainTitle: string = "";
-  public colour: string = "red";
-  public fontSize: number = 5;
-  public fontFamily: string = "Calibri";
+  public overall: Overall = new Overall();
 }
 
 export class Data {
   public show: boolean = true;
   public dataTitle: string = "";
   public fontSize: number = 5;
-  public pointSize: number = 6;
+  public pointSize: number = 10;
   public lineThickness: number = 5;
   public fontFamily: string= "Calibri";
+}
+
+export class Overall {
+  public displayText: boolean = true;
+  public displayRank: boolean = true;
+  public transitionDuration: number = 3000;
+  public delayTime: number = 1000;
+  public numberOfElementsOnAxis: number = 6;
 }

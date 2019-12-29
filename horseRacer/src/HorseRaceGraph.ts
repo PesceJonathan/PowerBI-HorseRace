@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { Line } from "d3";
 import { DataValue, HorseGraphData, HorseInformation, Scales, setUpSettings  } from "./Types";
+import { VisualSettings } from "./settings";
 
 
 export class HorseRaceGraph {
@@ -38,16 +39,16 @@ export class HorseRaceGraph {
      * @param {number} width The width of the screen
      * @param {number} height The height of the screen
      */
-    public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, displaySettings: setUpSettings, ranksAsValues: boolean, width: number, height: number) {
+    public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, displaySettings: setUpSettings, ranksAsValues: boolean, settings: VisualSettings, width: number, height: number) {
         //Set up the variables
-        this.transitionDuration = 3000;
+        this.transitionDuration = settings.overall.transitionDuration;
         this.currentDomainElement = 1;
-        this.delayStartTime = 1000;
+        this.delayStartTime = settings.overall.delayTime;
         this.domainLength = data.domain.length;
         this.domain = data.domain;
-        this.startAndEndCircleRadius = 10;
+        this.startAndEndCircleRadius = settings.data.pointSize;
         this.elementClicked = "";
-        this.numberOfElementsOnScreenAtOnce = 6;
+        this.numberOfElementsOnScreenAtOnce = settings.overall.numberOfElementsOnAxis;
         this.textFont = "0.3em";
 
         //Bind the transition sequence function to this
@@ -72,7 +73,7 @@ export class HorseRaceGraph {
             .duration(this.transitionDuration)
             .on("start", this.transitionSequence);
 
-        this.redraw = () => { this.render(svg, data, displaySettings, ranksAsValues, width, height) }
+        this.redraw = () => { this.render(svg, data, displaySettings, ranksAsValues, settings, width, height) }
     }
 
     private generateStructuredData(data: HorseGraphData, ranksAsValues: boolean) {
@@ -136,14 +137,14 @@ export class HorseRaceGraph {
             .duration(this.transitionDuration)
             .attr("width", this.scales.xScale(this.domain[this.currentDomainElement]));
 
-        this.horseName
+        if (this.horseName) {
+            this.horseName
             .transition()
             .ease(d3.easeLinear)
             .duration(this.transitionDuration)
             .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
             .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
-
-
+        }
         
         this.currentDomainElement++;
 
@@ -205,12 +206,15 @@ export class HorseRaceGraph {
             .attr('height', this.startAndEndCircleRadius * 4)
             .attr("transform", "translate(0, " + this.startAndEndCircleRadius * -2 + ")")
             .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
-            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])));
+            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+            .on("mouseout", this.onExitOfElement)
+            .on("click", (d: HorseInformation) => this.onClick(d.name));
         } else {
             this.horseEndCircles = this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius * 3);
         }
 
-        if (displaySettings.displayRank) {
+        if (displaySettings.displayRank && !displaySettings.displayImages) {
             //Append the rank into the circle
             this.rankNumber = this.horseElements.append("text")
             .text((d: HorseInformation) => Math.round(parseInt(d.values[0][1])))
@@ -225,7 +229,8 @@ export class HorseRaceGraph {
             .on("click", (d: HorseInformation) => this.onClick(d.name));
         }
 
-        this.horseName = this.horseElements.append("text")
+        if (displaySettings.displayName) {
+            this.horseName = this.horseElements.append("text")
             .text((d: HorseInformation) => d.name)
             .attr("transform", "translate(" + this.startAndEndCircleRadius * 4 + ", 0)")
             .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
@@ -236,6 +241,7 @@ export class HorseRaceGraph {
             .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
             .on("mouseout", this.onExitOfElement)
             .on("click", (d: HorseInformation) => this.onClick(d.name));
+        }
 
         //Set up the clip path to hide all lines at the start and the span the entire height of the graph
         this.clipPath = this.svg.append("clipPath")
