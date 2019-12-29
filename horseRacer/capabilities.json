@@ -59,6 +59,13 @@
                     "type": {
                         "numeric": true
                     }
+                },
+                "displayValuesOnAxis": {
+                    "displayName": "Axis is values",
+                    "description": "The y-axis will be represented by values and not ranks",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },

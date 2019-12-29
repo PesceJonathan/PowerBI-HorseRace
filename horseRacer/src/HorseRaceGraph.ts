@@ -39,7 +39,7 @@ export class HorseRaceGraph {
      * @param {number} width The width of the screen
      * @param {number} height The height of the screen
      */
-    public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, displaySettings: setUpSettings, ranksAsValues: boolean, settings: VisualSettings, width: number, height: number) {
+    public render(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>, data: HorseGraphData, displaySettings: setUpSettings, settings: VisualSettings, width: number, height: number) {
         //Set up the variables
         this.transitionDuration = settings.overall.transitionDuration;
         this.currentDomainElement = 1;
@@ -59,10 +59,10 @@ export class HorseRaceGraph {
         d3.select("#horseGraph").remove();
 
         //Set up the graph elements i.e. axis, line function, scales
-        this.setUpGraph(svg, data, ranksAsValues, width, height);
+        this.setUpGraph(svg, data, settings.overall.displayValuesOnAxis, width, height);
 
         //Set up the data
-        let structuredData: HorseInformation[] = this.generateStructuredData(data, ranksAsValues);
+        let structuredData: HorseInformation[] = this.generateStructuredData(data, settings.overall.displayValuesOnAxis);
 
         //Append the elements in the starting position
         this.SetUpInitialElements(structuredData, displaySettings);
@@ -73,7 +73,7 @@ export class HorseRaceGraph {
             .duration(this.transitionDuration)
             .on("start", this.transitionSequence);
 
-        this.redraw = () => { this.render(svg, data, displaySettings, ranksAsValues, settings, width, height) }
+        this.redraw = () => { this.render(svg, data, displaySettings, settings, width, height) }
     }
 
     private generateStructuredData(data: HorseGraphData, ranksAsValues: boolean) {
@@ -331,7 +331,7 @@ export class HorseRaceGraph {
             .attr("id", "horseGraph");
 
         this.scales = this.createScale(data, rankAsValues, width - margin.left - margin.right, height - margin.top - margin.bottom);
-        this.generateAxis(this.svg, this.scales, data.numElements);
+        this.generateAxis(this.svg, this.scales, data.values.length);
 
         //Add the clippath element for the movable elements
         this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")

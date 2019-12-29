@@ -46,6 +46,7 @@ export class Data {
 export class Overall {
   public displayText: boolean = true;
   public displayRank: boolean = true;
+  public displayValuesOnAxis: boolean = false;
   public transitionDuration: number = 3000;
   public delayTime: number = 1000;
   public numberOfElementsOnAxis: number = 6;

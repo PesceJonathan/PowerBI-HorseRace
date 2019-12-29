@@ -75,7 +75,7 @@ export class Visual implements IVisual {
         }
 
         let graph: HorseRaceGraph = new HorseRaceGraph();
-        graph.render(this.svg, data, displaySettings, false, this.settings, width, height);
+        graph.render(this.svg, data, displaySettings, this.settings, width, height);
     }
 
     private imagesPresent(data: HorseGraphData): boolean {
