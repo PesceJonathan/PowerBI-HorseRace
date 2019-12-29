@@ -11,6 +11,11 @@
             "kind": "Grouping"
         },
         {
+            "displayName": "Images",
+            "name": "images",
+            "kind": "Measure"
+        },
+        {
             "displayName": "Values",
             "name": "values",
             "kind": "Measure"
@@ -67,9 +72,13 @@
         {
             "categorical": {
                 "categories": {
-                    "for": {
-                        "in": "axis"
-                    }
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "axis"
+                            }
+                        }
+                    ]
                 },
                 "values": {
                     "group": {
@@ -78,6 +87,11 @@
                             {
                                 "for": {
                                     "in": "values"
+                                }
+                            },
+                            {
+                                "bind": {
+                                    "to": "images"
                                 }
                             }
                         ]

@@ -57,6 +57,7 @@ export class HorseRaceGraph {
 
         d3.select("#horseGraph").remove();
 
+        debugger;
         //Set up the graph elements i.e. axis, line function, scales
         this.setUpGraph(svg, data, ranksAsValues, width, height);
 
@@ -81,7 +82,8 @@ export class HorseRaceGraph {
                 return {
                     values: d3.zip(data.domain, elem.rankedPosition.map(x => "" + x)),
                     name: elem.name,
-                    colour: elem.colour
+                    colour: elem.colour,
+                    image: elem.image
                 } as HorseInformation;
             });
         }
@@ -90,7 +92,8 @@ export class HorseRaceGraph {
             return {
                 values: d3.zip(data.domain, elem.values.map(x => "" + x)),
                 name: elem.name,
-                colour: elem.colour
+                colour: elem.colour,
+                image: elem.image
             } as HorseInformation;
         });
     }
@@ -198,7 +201,7 @@ export class HorseRaceGraph {
 
         if (displaySettings.displayImages) {
             this.imagesElements = this.horseElements.append('image')
-            .attr('xlink:href', (d: HorseInformation) => d.img)
+            .attr('xlink:href', (d: HorseInformation) => d.image)
             .attr('width', this.startAndEndCircleRadius * 4)
             .attr('height', this.startAndEndCircleRadius * 4)
             .attr("transform", "translate(0, " + this.startAndEndCircleRadius * -2 + ")")
