@@ -22,6 +22,14 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
 
     for (var i = 0; i < dataView.categorical.values.length; i++) {
         let values: number[] = [];
+        
+        let image: string = undefined;
+
+        if (dataView.categorical.values[i].source.roles.images) {
+            image = dataView.categorical.values[i].values[0] as string;
+            i++;
+        }
+
         for (var j = 0; j < dataView.categorical.values[i].values.length; j++) {
             values.push(dataView.categorical.values[i].values[j] as number); 
         }
@@ -32,7 +40,8 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
             name: name,
             colour: colorPalette.getColor(name).value,
             values: values,
-            rankedPosition: [] as number[]
+            rankedPosition: [] as number[],
+            image: image
         }
         horses.push(horse);
     }

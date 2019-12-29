@@ -4,20 +4,22 @@ export interface HorseGraphData {
     domain: string[];
     numElements: number;
     values: DataValue[];
+    image?: string;
 }
 
 export interface HorseInformation {
     values: string[][];
     colour: string;
     name: string;
-    img?: string;
+    image: string|undefined;
 }
 
 export interface DataValue {
     name: string,
     values: number[],
     rankedPosition: number[],
-    colour: string
+    colour: string,
+    image?: string
 }
 
 export interface Point {
