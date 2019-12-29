@@ -28,7 +28,7 @@ export class HorseRaceGraph {
     private domain: string[];
     private startAndEndCircleRadius: number;
     private elementClicked: string;
-    private numberOfElementsOnScreenAtOnce;
+    private numberOfElementsOnScreenAtOnce: number;
     private adjustedAxis: boolean;
     private height: number;
     private textFont: string;
@@ -115,16 +115,16 @@ export class HorseRaceGraph {
         if (this.adjustedAxis) {
             this.updateYScale(this.currentDomainElement);
             this.updateYAxis();
-    
+
             //Set up the line function
             this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
-        }
 
-        this.horseElements.selectAll(".line")
-        .transition()
-        .ease(d3.easeLinear)
-        .duration(this.transitionDuration)
-        .attr("d", (d: HorseInformation) => this.line(d.values))
+            this.horseElements.selectAll(".line")
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .attr("d", (d: HorseInformation) => this.line(d.values));
+        }
 
         this.horseStartCircles
             .transition()
@@ -205,7 +205,8 @@ export class HorseRaceGraph {
      * @param data The data used to place the horse elements in their starting position
      */
     private SetUpInitialElements(data: HorseInformation[], displaySettings: setUpSettings) {
-        this.horseElements = this.elementsWithOffScreenComponent.selectAll(".horseElement")
+        this.horseElements = this.elementsWithOffScreenComponent.append("g").attr("clip-path", "url(#clipPathForMovableElements)")
+            .selectAll(".horseElement")
             .data(data)
             .enter()
             .append("g")
@@ -405,8 +406,16 @@ export class HorseRaceGraph {
             yScale = d3.scaleLinear().domain([1, data.values.length])
                 .range([0, height]).nice();
         } else {
-            yScale = d3.scaleLinear().domain(this.getMinAndMax(data))
-                .range([0, height]).nice();
+
+            if (this.adjustedAxis) {
+                yScale = d3.scaleLinear()
+                .domain([d3.max(this.data.values, (d: DataValue) => d.values[0]) * 1.05, d3.min(this.data.values, (d: DataValue) => d.values[0]) * 0.95])
+                    .range([0, this.height])
+                    .nice();
+            } else {
+                yScale = d3.scaleLinear().domain(this.getMinAndMax(data))
+                    .range([0, height]).nice();
+            }
         }
 
         return {
@@ -442,13 +451,14 @@ export class HorseRaceGraph {
             .style("color", colour)
             .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1));
 
-        this.svg.append("g")
+        //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
+        this.elementsWithOffScreenComponent = this.svg.append("g");
+
+        this.elementsWithOffScreenComponent.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
             .call(d3.axisTop(scales.xScale));
 
-        //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
-        this.elementsWithOffScreenComponent = this.svg.append("g").attr("clip-path", "url(#clipPathForMovableElements)");
     }
 
     private updateYAxis() {
@@ -460,7 +470,7 @@ export class HorseRaceGraph {
 
     private updateYScale(elementAtTheDomain: number) {
         this.scales.yScale = d3.scaleLinear()
-            .domain([d3.max(this.data.values, (d: DataValue) => d.values[elementAtTheDomain]), d3.min(this.data.values, (d: DataValue) => d.values[elementAtTheDomain])])
+            .domain([d3.max(this.data.values, (d: DataValue) => d.values[elementAtTheDomain]) * 1.1, d3.min(this.data.values, (d: DataValue) => d.values[elementAtTheDomain]) * 0.9])
             .range([0, this.height])
             .nice();
     }
