@@ -57,7 +57,6 @@ export class HorseRaceGraph {
 
         d3.select("#horseGraph").remove();
 
-        debugger;
         //Set up the graph elements i.e. axis, line function, scales
         this.setUpGraph(svg, data, ranksAsValues, width, height);
 
