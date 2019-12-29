@@ -31,40 +31,51 @@ import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
+import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedColorPalette;
 
-import { GenerateRanks } from "./GenerateRanks";
+import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
+import {HorseRaceGraph} from "./HorseRaceGraph";
+import * as d3 from "d3"; 
+import { dataTemp } from "./tempData";
+
+
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private updateCount: number;
     private settings: VisualSettings;
     private textNode: Text;
+    private host: IVisualHost;
+
+    private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+
 
     constructor(options: VisualConstructorOptions) {
-        this.target = options.element;
-        this.updateCount = 0;
-        if (document) {
-            const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
-            const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
-        GenerateRanks();
+        this.svg = d3.select(options.element)
+        .append('svg');
+        this.host = options.host;
     }
 
     public update(options: VisualUpdateOptions) {
+        let width: number = options.viewport.width;
+        let height: number = options.viewport.height;
+        this.svg.attr("width", width);
+        this.svg.attr("height", height);
+
+        let dataView: DataView = options.dataViews[0];
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = (this.updateCount++).toString();
+        let data = DataProcessor(dataView, this.host.colorPalette);
+      
+        let displaySettings = {
+            displayImages: true,
+            displayRank: false
         }
+
+        let graph: HorseRaceGraph = new HorseRaceGraph();
+        graph.render(this.svg, data, displaySettings, false, width, height);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
