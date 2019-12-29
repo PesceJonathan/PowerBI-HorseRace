@@ -42,12 +42,11 @@ import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
 import {HorseRaceGraph} from "./HorseRaceGraph";
 import * as d3 from "d3"; 
-import { dataTemp } from "./tempData";
+import { HorseGraphData } from "./Types";
 
 
 export class Visual implements IVisual {
     private settings: VisualSettings;
-    private textNode: Text;
     private host: IVisualHost;
 
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -67,15 +66,26 @@ export class Visual implements IVisual {
 
         let dataView: DataView = options.dataViews[0];
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        let data = DataProcessor(dataView, this.host.colorPalette);
+        let data = DataProcessor(dataView, this.host.colorPalette, this.settings.data.aggregateValues);
       
         let displaySettings = {
-            displayImages: true,
-            displayRank: false
+            displayImages: this.imagesPresent(data),
+            displayRank: this.settings.data.displayRank,
+            displayName: this.settings.data.displayText
         }
 
         let graph: HorseRaceGraph = new HorseRaceGraph();
-        graph.render(this.svg, data, displaySettings, false, width, height);
+        graph.render(this.svg, data, displaySettings, this.settings, width, height);
+    }
+
+    private imagesPresent(data: HorseGraphData): boolean {
+        
+        for (let i = 0; i < data.values.length; i++) {
+            if (data.values[i].image === undefined)
+                return false;
+        }
+
+        return true;
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {

@@ -30,19 +30,23 @@ import { dataViewObjectsParser } from "powerbi-visuals-utils-dataviewutils";
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
 export class VisualSettings extends DataViewObjectsParser {
-  public dataPoint: dataPointSettings = new dataPointSettings();
+  public data: Data = new Data();
+  public overall: Overall = new Overall();
 }
 
-export class dataPointSettings {
-  // Default color
-  public defaultColor: string = "";
-  // Show all
-  public showAllDataPoints: boolean = true;
-  // Fill
-  public fill: string = "";
-  // Color saturation
-  public fillRule: string = "";
-  // Text Size
-  public fontSize: number = 12;
+export class Data {
+  public fontSize: number = 15;
+  public dataSize: number = 10;
+  public lineThickness: number = 5;
+  public fontFamily: string= "Calibri";
+  public displayText: boolean = true;
+  public displayRank: boolean = true;
+  public aggregateValues: boolean = false;
 }
 
+export class Overall {
+  public displayValuesOnAxis: boolean = false;
+  public transitionDuration: number = 3000;
+  public delayTime: number = 1000;
+  public numberOfElementsOnAxis: number = 6;
+}

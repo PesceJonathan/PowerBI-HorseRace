@@ -34,5 +34,6 @@ export interface Scales {
 
 export interface setUpSettings {
     displayImages: boolean,
-    displayRank: boolean
+    displayRank: boolean,
+    displayName: boolean
 }
