@@ -13,6 +13,7 @@ export class HorseRaceGraph {
     private horseEndCircles: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private offScreenElementsClipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private xAxisClipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
@@ -138,15 +139,28 @@ export class HorseRaceGraph {
                 .duration(this.transitionDuration)
                 .attr("d", (d: HorseInformation) => this.line(d.values));
 
-            this.horseElements.selectAll(".followLine")
+                this.horseElements.selectAll(".followLine")
                 .attr("d", (d: HorseInformation) => tempLine(this.getCurrentAndNextValue(d.values)));
+        
+                this.horseElements.selectAll(".followLine")
+                    .transition()
+                    .ease(d3.easeLinear)
+                    .duration(this.transitionDuration)
+                    .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+
+        } else {
+            this.horseElements.selectAll(".followLine")
+            .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+    
+            this.horseElements.selectAll(".followLine")
+                .transition()
+                .ease(d3.easeLinear)
+                .duration(this.transitionDuration)
+                .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
         }
 
-        this.horseElements.selectAll(".followLine")
-            .transition()
-            .ease(d3.easeLinear)
-            .duration(this.transitionDuration)
-            .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+        
+
 
         this.horseStartCircles
             .transition()
@@ -211,6 +225,11 @@ export class HorseRaceGraph {
                 .duration(this.transitionDuration)
                 .ease(d3.easeLinear)
                 .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
+            
+            this.xAxisClipPath.transition()
+                .duration(this.transitionDuration)
+                .ease(d3.easeLinear)
+                .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
         }
 
         if (this.currentDomainElement < this.domainLength) {
@@ -260,10 +279,7 @@ export class HorseRaceGraph {
                 .append("path")
                 .attr("class", "followLine")
                 .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)))
-                .style("stroke", (d: HorseInformation) => d.colour)
-            .style("stroke-width", 5)
-            .style("fill", "none");
-                        // .style("visibility", "hidden");
+                .style("visibility", "hidden");
             
 
         //Append the circles to the starting positions
@@ -428,6 +444,24 @@ export class HorseRaceGraph {
             .attr("width", width + margin.left)
             .attr("y", 0)
             .attr("height", height + margin.top);
+            
+        this.xAxisClipPath = this.elementsWithOffScreenComponent
+            .append("clipPath")
+            .attr("id", "xAxisClipPathElement")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -margin.top)
+            .attr("height", height + margin.top);
+        
+        this.svg
+            .append("clipPath")
+            .attr("id", "yAxisClipPathElement")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -5)
+            .attr("height", height + margin.top);
 
         //Set up the line function
         this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
@@ -498,7 +532,8 @@ export class HorseRaceGraph {
         this.yAxis = svg.append("g")
             .attr("class", "yAxis")
             .style("color", colour)
-            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1));
+            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1))
+            .attr("clip-path", "url(#yAxisClipPathElement)");
 
         //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
         this.elementsWithOffScreenComponent = this.svg.append("g");
@@ -506,7 +541,8 @@ export class HorseRaceGraph {
         this.elementsWithOffScreenComponent.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
-            .call(d3.axisTop(scales.xScale));
+            .call(d3.axisTop(scales.xScale))
+            .attr("clip-path", "url(#xAxisClipPathElement)");
 
     }
 
