@@ -13,10 +13,28 @@ import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedCol
  * That object will be sent to retrieve a rank and returned 
  * @param dataView 
  */
-export const DataProcessor = function(dataView: DataView, colorPalette: ISandboxExtendedColorPalette, isAggregate: boolean) {
+export const DataProcessor = function(dataView: DataView, colorPalette: ISandboxExtendedColorPalette, isAggregate: boolean, optionIndex: string) {
     let domain = [];
+
+    let options = [
+    { day: "2-digit" }, //dd
+    { month: "long" }, //mm
+    { year: "2-digit" }, //yy
+    { year: "numeric" }, //yyyy
+    { day: "2-digit", month: "2-digit" }, //dd/mm
+    { month: "2-digit", year: "2-digit" }, //mm/yy
+    { month: "2-digit", year: "numeric" }, //mm/yyyy
+    { day: "2-digit", month: "2-digit", year: "2-digit" }, //dd/mm/yy
+    { day: "2-digit", month: "2-digit", year: "numeric" }, //dd/mm/yyyy
+    ];
+
     for (var i = 0; i < dataView.categorical.categories[0].values.length; i++) {
-        domain.push(dataView.categorical.categories[0].values[i]);
+        if (dataView.categorical.categories[0].values[i] instanceof Date) {
+            var date:Date = new Date(dataView.categorical.categories[0].values[i] as string);
+            domain.push(date.toLocaleString("en-US", options[optionIndex]));
+        } else {
+            domain.push(dataView.categorical.categories[0].values[i]);
+        }
     }
     let horses: DataValue[] = [];
 
@@ -58,4 +76,9 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
 
     data.values = GenerateRanks(data);
     return data;
+}
+
+function convertDate (date: Date) { 
+    var options = { weekday: 'undefined', year: 'numeric', month: 'short', day: 'numeric' };
+    console.log(date.toLocaleDateString("en-US", options));
 }

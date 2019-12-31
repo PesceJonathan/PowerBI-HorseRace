@@ -38,7 +38,8 @@ export class Data {
   public fontSize: number = 15;
   public dataSize: number = 10;
   public lineThickness: number = 5;
-  public fontFamily: string= "Calibri";
+  public fontFamily: string = "Calibri";
+  public axisFormat: string = "dd/mm/yyyy";
   public displayText: boolean = true;
   public displayRank: boolean = true;
   public aggregateValues: boolean = false;

@@ -187,6 +187,50 @@
                             }
                         ]
                     }
+                },
+                "axisFormat": {
+                    "displayName": "Date Format",
+                    "description": "Format of the date on the x-axis",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "dd",
+                                "value": "0"
+                            },
+                            {
+                                "displayName": "mm",
+                                "value": "1"
+                            },
+                            {
+                                "displayName": "yy",
+                                "value": "2"
+                            },
+                            {
+                                "displayName": "yyyy",
+                                "value": "3"
+                            },
+                            {
+                                "displayName": "dd/mm",
+                                "value": "4"
+                            },
+                            {
+                                "displayName": "mm/yy",
+                                "value": "5"
+                            },
+                            {
+                                "displayName": "mm/yyyy",
+                                "value": "6"
+                            },
+                            {
+                                "displayName": "dd/mm/yy",
+                                "value": "7"
+                            },
+                            {
+                                "displayName": "dd/mm/yyyy",
+                                "value": "8"
+                            }
+                        ]
+                    }
                 }
             }
         }
