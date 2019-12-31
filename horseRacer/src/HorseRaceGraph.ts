@@ -37,6 +37,8 @@ export class HorseRaceGraph {
     private fontFamily: string;
     private rankAsValue: boolean;
     private structuredData: HorseInformation[];
+    private minOffSet: number;
+    private maxOffSet: number;
     private redraw: () => void;
 
     /**
@@ -64,6 +66,8 @@ export class HorseRaceGraph {
         this.data = data;
         this.height = height;
         this.rankAsValue = settings.overall.displayValuesOnAxis;
+        this.maxOffSet = 1.02;
+        this.minOffSet = 0.98;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -501,21 +505,19 @@ export class HorseRaceGraph {
         //Create the y scale, which will for now be based on ranks (linear numbers)
         var yScale;
         if (rankAsValues) {
-            yScale = d3.scaleLinear().domain([1, data.values.length])
-                .range([0, height]).nice();
+            yScale = d3.scaleLinear().domain([0.5, data.values.length + 0.5])
+                .range([0, height]);
         } else {
 
             if (this.adjustedAxis) {
                 yScale = d3.scaleLinear()
-                    .domain([d3.max(this.data.values, (d: DataValue) => d.values[0]), d3.min(this.data.values, (d: DataValue) => d.values[0])])
-                    .range([0, this.height])
-                    .nice();
+                    .domain([d3.max(this.data.values, (d: DataValue) => d.values[0] * this.maxOffSet), d3.min(this.data.values, (d: DataValue) => d.values[0]) * this.minOffSet])
+                    .range([0, this.height]);
             } else {
-                yScale = d3.scaleLinear().domain(this.getMinAndMax(data))
-                    .range([0, height]).nice();
+                yScale = d3.scaleLinear().domain(this.getMinAndMax(data, this.maxOffSet, this.minOffSet))
+                    .range([0, height]);
             }
         }
-
         return {
             xScale: xScale,
             yScale: yScale
@@ -526,11 +528,11 @@ export class HorseRaceGraph {
      * Retrieves the min and the max value of the data set and returns them as an
      * array with the first value being the max and the second being the min
      */
-    private getMinAndMax(data: HorseGraphData): number[] {
+    private getMinAndMax(data: HorseGraphData, maxOffSet: number, minOffSet: number): number[] {
         let min = d3.min(data.values, (d: DataValue) => d3.min(d.values));
         let max = d3.max(data.values, (d: DataValue) => d3.max(d.values));
 
-        return [max, min];
+        return [max * maxOffSet, min * minOffSet];
     }
 
     /**
@@ -572,15 +574,16 @@ export class HorseRaceGraph {
         debugger;
         let max = d3.max(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
         let min = d3.min(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
-        let maxMin = [max, min];
+        let maxMin;
 
         if (rankAsValue) {
-            maxMin = [min, max];
+            maxMin = [min - 0.5, max + 0.5];
+        } else {
+            maxMin = [max *  this.maxOffSet, min * this.minOffSet];
         }
 
         this.scales.yScale = d3.scaleLinear()
             .domain(maxMin)
-            .range([0, this.height])
-            .nice();
+            .range([0, this.height]);
     }
 }
