@@ -11,65 +11,257 @@
             "kind": "Grouping"
         },
         {
+            "displayName": "Images",
+            "name": "images",
+            "kind": "Measure"
+        },
+        {
             "displayName": "Values",
             "name": "values",
             "kind": "Measure"
         }
     ],
     "objects": {
-        "dataPoint": {
-            "displayName": "Data colors",
+        "overall": {
+            "displayName": "Overall",
             "properties": {
-                "defaultColor": {
-                    "displayName": "Default color",
+                "transitionDuration": {
+                    "displayName": "Duration Time",
+                    "description": "The time it takes for every transition sequence to run",
                     "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
+                        "numeric": true
                     }
                 },
-                "showAllDataPoints": {
-                    "displayName": "Show all",
+                "delayStartTime": {
+                    "displayName": "Delay Start Time",
+                    "description": "The time the visual waits before beginning it's animation",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "numberOfElementsOnAxis": {
+                    "displayName": "Number of elements on the Axis",
+                    "description": "The number of elements that should be on the x-axis",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "displayValuesOnAxis": {
+                    "displayName": "Axis is rank",
+                    "description": "The y-axis will be represented by values and not ranks",
                     "type": {
                         "bool": true
                     }
                 },
-                "fill": {
-                    "displayName": "Fill",
+                "dynamicYAxis": {
+                    "displayName": "Dynamic Y-Axis",
+                    "description": "Make the Y-Axis dynamic, changing based on the current values and not global values",
                     "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "data": {
+            "displayName": "Data",
+            "properties": {
+                "displayText": {
+                    "displayName": "Display Name",
+                    "description": "Display the name of the horse next to the horse",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "displayRank": {
+                    "displayName": "Display Rank",
+                    "description": "Display the rank of the horse within the circle",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "aggregateValues": {
+                    "displayName": "Aggregate Values",
+                    "description": "The values will display the running sum",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dataSize": {
+                    "displayName": "Horse Radius Size",
+                    "description": "Radius of the point representing data",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "description": "Size of the font of the text representing data",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "fontFamily": {
+                    "displayName": "Fonts",
+                    "description": "Font type describing data",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Arial",
+                                "value": "Arial"
+                            },
+                            {
+                                "displayName": "Arial Black",
+                                "value": "Arial Black"
+                            },
+                            {
+                                "displayName": "Arial Unicode MS",
+                                "value": "Arial Unicode MS"
+                            },
+                            {
+                                "displayName": "Calibri",
+                                "value": "Calibri"
+                            },
+                            {
+                                "displayName": "Cambria",
+                                "value": "Cambria"
+                            },
+                            {
+                                "displayName": "Cambria Math",
+                                "value": "Cambria Math"
+                            },
+                            {
+                                "displayName": "Candara",
+                                "value": "Candara"
+                            },
+                            {
+                                "displayName": "Comic Sans MS",
+                                "value": "Comic Sans MS"
+                            },
+                            {
+                                "displayName": "Consolas",
+                                "value": "Consolas"
+                            },
+                            {
+                                "displayName": "Constantia",
+                                "value": "Constantia"
+                            },
+                            {
+                                "displayName": "Corbel",
+                                "value": "Corbel"
+                            },
+                            {
+                                "displayName": "Courier New",
+                                "value": "Courier New"
+                            },
+                            {
+                                "displayName": "Georgia",
+                                "value": "Georgia"
+                            },
+                            {
+                                "displayName": "Lucida Sans Unicode",
+                                "value": "Lucida Sans Unicode"
+                            },
+                            {
+                                "displayName": "Symbol",
+                                "value": "Symbol"
+                            },
+                            {
+                                "displayName": "Tahoma",
+                                "value": "Tahoma"
+                            },
+                            {
+                                "displayName": "Times New Roman",
+                                "value": "Times New Roman"
+                            },
+                            {
+                                "displayName": "Trebuchet MS",
+                                "value": "Trebuchet MS"
+                            },
+                            {
+                                "displayName": "Verdana",
+                                "value": "Verdana"
+                            },
+                            {
+                                "displayName": "Wingdings",
+                                "value": "Wingdings"
                             }
-                        }
+                        ]
                     }
                 },
-                "fillRule": {
-                    "displayName": "Color saturation",
+                "axisFormat": {
+                    "displayName": "Date Format",
+                    "description": "Format of the date on the x-axis",
                     "type": {
-                        "fill": {}
-                    }
-                },
-                 "fontSize": {
-                    "displayName": "Text Size",
-                    "type": {
-                        "formatting": {
-                            "fontSize": true
-                        }
+                        "enumeration": [
+                            {
+                                "displayName": "dd",
+                                "value": "0"
+                            },
+                            {
+                                "displayName": "mm",
+                                "value": "1"
+                            },
+                            {
+                                "displayName": "yy",
+                                "value": "2"
+                            },
+                            {
+                                "displayName": "yyyy",
+                                "value": "3"
+                            },
+                            {
+                                "displayName": "dd/mm",
+                                "value": "4"
+                            },
+                            {
+                                "displayName": "mm/yy",
+                                "value": "5"
+                            },
+                            {
+                                "displayName": "mm/yyyy",
+                                "value": "6"
+                            },
+                            {
+                                "displayName": "dd/mm/yy",
+                                "value": "7"
+                            },
+                            {
+                                "displayName": "dd/mm/yyyy",
+                                "value": "8"
+                            }
+                        ]
                     }
                 }
             }
         }
     },
     "dataViewMappings": [
-        {
+        {            
+            "conditions": [
+                {
+                    "axis": {
+                        "max": 1
+                    },
+                    "legend": {
+                        "max": 1
+                    },
+                    "values" :{
+                        "max": 1
+                    },
+                    "images": {   
+                        "max": 1
+                    }
+                }
+            ],
             "categorical": {
                 "categories": {
-                    "for": {
-                        "in": "axis"
-                    }
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "axis"
+                            }
+                        }
+                    ]
                 },
                 "values": {
                     "group": {
@@ -78,6 +270,11 @@
                             {
                                 "for": {
                                     "in": "values"
+                                }
+                            },
+                            {
+                                "bind": {
+                                    "to": "images"
                                 }
                             }
                         ]

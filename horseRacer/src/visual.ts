@@ -40,38 +40,52 @@ import ISandboxExtendedColorPalette =  powerbi.extensibility.ISandboxExtendedCol
 
 import { DataProcessor } from "./DataProcessor";
 import { VisualSettings } from "./settings";
+import {HorseRaceGraph} from "./HorseRaceGraph";
+import * as d3 from "d3"; 
+import { HorseGraphData } from "./Types";
+
 
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private updateCount: number;
     private settings: VisualSettings;
-    private textNode: Text;
     private host: IVisualHost;
 
+    private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+
+
     constructor(options: VisualConstructorOptions) {
-        this.target = options.element;
-        this.updateCount = 0;
-        if (document) {
-            const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
-            const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
+        this.svg = d3.select(options.element)
+        .append('svg');
         this.host = options.host;
     }
 
     public update(options: VisualUpdateOptions) {
+        let width: number = options.viewport.width;
+        let height: number = options.viewport.height;
+        this.svg.attr("width", width);
+        this.svg.attr("height", height);
+
         let dataView: DataView = options.dataViews[0];
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = (this.updateCount++).toString();
+        let data = DataProcessor(dataView, this.host.colorPalette, this.settings.data.aggregateValues, this.settings.data.axisFormat);
+      
+        let displaySettings = {
+            displayImages: this.imagesPresent(data),
+            displayRank: this.settings.data.displayRank,
+            displayName: this.settings.data.displayText
         }
-        let data = DataProcessor(dataView, this.host.colorPalette);
-        console.log(data);
+
+        let graph: HorseRaceGraph = new HorseRaceGraph();
+        graph.render(this.svg, data, displaySettings, this.settings, width, height);
+    }
+
+    private imagesPresent(data: HorseGraphData): boolean {
+        
+        for (let i = 0; i < data.values.length; i++) {
+            if (data.values[i].image === undefined)
+                return false;
+        }
+
+        return true;
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
