@@ -49,4 +49,5 @@ export class Overall {
   public transitionDuration: number = 3000;
   public delayTime: number = 1000;
   public numberOfElementsOnAxis: number = 6;
+  public dynamicYAxis: boolean = false;
 }
