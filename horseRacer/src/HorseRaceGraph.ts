@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { Line } from "d3";
-import { DataValue, HorseGraphData, HorseInformation, Scales, setUpSettings  } from "./Types";
+import { DataValue, HorseGraphData, HorseInformation, Scales, setUpSettings } from "./Types";
 import { VisualSettings } from "./settings";
 
 
@@ -8,9 +8,12 @@ export class HorseRaceGraph {
     "use strict"
     private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private horseElements: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
+    private yAxis: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    private horseStartCircles: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseEndCircles: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private clipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private offScreenElementsClipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private xAxisClipPath: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
     private transitionElement: d3.Transition<HTMLElement, unknown, null, undefined>;
     private rankNumber: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
     private horseName: d3.Selection<SVGGElement, HorseInformation, SVGGElement, unknown>;
@@ -26,9 +29,16 @@ export class HorseRaceGraph {
     private domain: string[];
     private startAndEndCircleRadius: number;
     private elementClicked: string;
-    private numberOfElementsOnScreenAtOnce;
+    private numberOfElementsOnScreenAtOnce: number;
+    private adjustedAxis: boolean;
+    private height: number;
     private textFont: string;
+    private data: HorseGraphData;
     private fontFamily: string;
+    private rankAsValue: boolean;
+    private structuredData: HorseInformation[];
+    private minOffSet: number;
+    private maxOffSet: number;
     private redraw: () => void;
 
     /**
@@ -52,6 +62,12 @@ export class HorseRaceGraph {
         this.numberOfElementsOnScreenAtOnce = settings.overall.numberOfElementsOnAxis;
         this.textFont = settings.data.fontSize + "px";
         this.fontFamily = settings.data.fontFamily;
+        this.adjustedAxis = settings.overall.dynamicYAxis;
+        this.data = data;
+        this.height = height;
+        this.rankAsValue = settings.overall.displayValuesOnAxis;
+        this.maxOffSet = 1.02;
+        this.minOffSet = 0.98;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -64,10 +80,10 @@ export class HorseRaceGraph {
         this.setUpGraph(svg, data, settings.overall.displayValuesOnAxis, width, height);
 
         //Set up the data
-        let structuredData: HorseInformation[] = this.generateStructuredData(data, settings.overall.displayValuesOnAxis);
+        this.structuredData = this.generateStructuredData(data, settings.overall.displayValuesOnAxis);
 
         //Append the elements in the starting position
-        this.SetUpInitialElements(structuredData, displaySettings);
+        this.SetUpInitialElements(this.structuredData, displaySettings);
 
         //Begin the transition of all the elements
         this.transitionElement = d3.transition()
@@ -104,6 +120,60 @@ export class HorseRaceGraph {
      * The function that will move all the elements based on the transition phase it is at
      */
     private transitionSequence() {
+        if (this.adjustedAxis) {
+            let oldYScale = this.scales.yScale;
+
+            this.updateYScale(this.currentDomainElement, this.rankAsValue);
+            this.updateYAxis();
+
+            //Set up the line function
+            this.line = d3.line<any>().x(d => this.scales.xScale(d[0])).y(d => this.scales.yScale(+d[1]));
+
+            let tempLine = d3.line<any>().x(d => this.scales.xScale(d[0])
+            ).y(d => {
+                    if (this.domain.indexOf(d[0]) < this.currentDomainElement)
+                        return oldYScale(+d[1]);
+
+                    return this.scales.yScale(+d[1])}
+            );
+
+            this.horseElements.selectAll(".line")
+                .attr("d", (d: HorseInformation) => tempLine(d.values));
+
+            this.horseElements.selectAll(".line")
+                .transition()
+                .ease(d3.easeLinear)
+                .duration(this.transitionDuration)
+                .attr("d", (d: HorseInformation) => this.line(d.values));
+
+                this.horseElements.selectAll(".followLine")
+                .attr("d", (d: HorseInformation) => tempLine(this.getCurrentAndNextValue(d.values)));
+        
+                this.horseElements.selectAll(".followLine")
+                    .transition()
+                    .ease(d3.easeLinear)
+                    .duration(this.transitionDuration)
+                    .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+
+        } else {
+            this.horseElements.selectAll(".followLine")
+            .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+    
+            this.horseElements.selectAll(".followLine")
+                .transition()
+                .ease(d3.easeLinear)
+                .duration(this.transitionDuration)
+                .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
+        }
+
+        
+
+
+        this.horseStartCircles
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])));
 
         if (this.imagesElements) {
             this.imagesElements
@@ -111,7 +181,7 @@ export class HorseRaceGraph {
                 .ease(d3.easeLinear)
                 .duration(this.transitionDuration)
                 .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
-                .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+                .attrTween("y", (d: HorseInformation) => this.getTweenFunction(d));
         } else {
             if (this.horseEndCircles) {
                 this.horseEndCircles
@@ -119,17 +189,17 @@ export class HorseRaceGraph {
                     .ease(d3.easeLinear)
                     .duration(this.transitionDuration)
                     .attr("cx", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
-                    .attr("cy", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));   
+                    .attrTween("cy", (d: HorseInformation) => this.getTweenFunction(d));
             }
 
             if (this.rankNumber) {
                 this.rankNumber
-                .transition()
-                .ease(d3.easeLinear)
-                .duration(this.transitionDuration)
-                .text((d: HorseInformation) => Math.round(parseInt(d.values[this.currentDomainElement][1]))) //Round if it values being displayed
-                .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
-                .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+                    .transition()
+                    .ease(d3.easeLinear)
+                    .duration(this.transitionDuration)
+                    .text((d: HorseInformation) => Math.round(parseInt(d.values[this.currentDomainElement][1]))) //Round if it values being displayed
+                    .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
+                    .attrTween("y", (d: HorseInformation) => this.getTweenFunction(d));
             }
         }
 
@@ -141,13 +211,13 @@ export class HorseRaceGraph {
 
         if (this.horseName) {
             this.horseName
-            .transition()
-            .ease(d3.easeLinear)
-            .duration(this.transitionDuration)
-            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
-            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[this.currentDomainElement][1])));
+                .transition()
+                .ease(d3.easeLinear)
+                .duration(this.transitionDuration)
+                .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[this.currentDomainElement][0]))
+                .attrTween("y", (d: HorseInformation) => this.getTweenFunction(d));
         }
-        
+
         this.currentDomainElement++;
 
         //Check if we need to move the screen to adjust for elements going off screen
@@ -162,6 +232,11 @@ export class HorseRaceGraph {
                 .duration(this.transitionDuration)
                 .ease(d3.easeLinear)
                 .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
+            
+            this.xAxisClipPath.transition()
+                .duration(this.transitionDuration)
+                .ease(d3.easeLinear)
+                .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
         }
 
         if (this.currentDomainElement < this.domainLength) {
@@ -172,17 +247,27 @@ export class HorseRaceGraph {
 
     }
 
+    private getTweenFunction(d: HorseInformation) {
+            var line: SVGPathElement = this.horseElements.filter((innerD) => (d.name === innerD.name)).node().getElementsByClassName("followLine")[0] as SVGPathElement;
+
+            return (t) => { 
+                return line.getPointAtLength(t * line.getTotalLength()).y + "";
+             };
+    }
+
     /**
      * Set up all the horse elements in their starting positions
      * 
      * @param data The data used to place the horse elements in their starting position
      */
     private SetUpInitialElements(data: HorseInformation[], displaySettings: setUpSettings) {
-        this.horseElements = this.elementsWithOffScreenComponent.selectAll(".horseElement")
+        this.horseElements = this.elementsWithOffScreenComponent.append("g").attr("clip-path", "url(#clipPathForMovableElements)")
+            .selectAll(".horseElement")
             .data(data)
             .enter()
             .append("g")
             .classed("horseElement", true);
+
 
         //Append the paths
         this.horseElements
@@ -197,6 +282,12 @@ export class HorseRaceGraph {
             .on("mouseout", this.onExitOfElement)
             .on("click", (d: HorseInformation) => this.onClick(d.name));
 
+            this.horseElements
+                .append("path")
+                .attr("class", "followLine")
+                .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)))
+                .style("visibility", "hidden");
+            
 
         //Append the circles to the starting positions
         let startRadius = this.startAndEndCircleRadius;
@@ -204,19 +295,19 @@ export class HorseRaceGraph {
             startRadius = 7;
         }
 
-        this.appendHorseDots(0, this.horseElements, startRadius);
+        this.horseStartCircles = this.appendHorseDots(0, this.horseElements, startRadius);
 
         if (displaySettings.displayImages) {
             this.imagesElements = this.horseElements.append('image')
-            .attr('xlink:href', (d: HorseInformation) => d.image)
-            .attr('width', this.startAndEndCircleRadius * 4)
-            .attr('height', this.startAndEndCircleRadius * 4)
-            .attr("transform", "translate(0, " + this.startAndEndCircleRadius * -2 + ")")
-            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
-            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
-            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement)
-            .on("click", (d: HorseInformation) => this.onClick(d.name));
+                .attr('xlink:href', (d: HorseInformation) => d.image)
+                .attr('width', this.startAndEndCircleRadius * 4)
+                .attr('height', this.startAndEndCircleRadius * 4)
+                .attr("transform", "translate(0, " + this.startAndEndCircleRadius * -2 + ")")
+                .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
+                .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+                .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+                .on("mouseout", this.onExitOfElement)
+                .on("click", (d: HorseInformation) => this.onClick(d.name));
         } else {
             this.horseEndCircles = this.appendHorseDots(0, this.horseElements, this.startAndEndCircleRadius * 3);
         }
@@ -224,34 +315,34 @@ export class HorseRaceGraph {
         if (displaySettings.displayRank && !displaySettings.displayImages) {
             //Append the rank into the circle
             this.rankNumber = this.horseElements.append("text")
-            .text((d: HorseInformation) => Math.round(parseInt(d.values[0][1])))
-            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
-            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
-            .attr("font-weight", "bold")
-            .attr("fill", "white")
-            .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) * 0.25)
-            .attr("text-anchor", "middle")
-            .style("font-family", this.fontFamily)
-            .style("font-size", this.textFont)
-            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement)
-            .on("click", (d: HorseInformation) => this.onClick(d.name));
+                .text((d: HorseInformation) => Math.round(parseInt(d.values[0][1])))
+                .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
+                .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+                .attr("font-weight", "bold")
+                .attr("fill", "white")
+                .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) * 0.25)
+                .attr("text-anchor", "middle")
+                .style("font-family", this.fontFamily)
+                .style("font-size", this.textFont)
+                .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+                .on("mouseout", this.onExitOfElement)
+                .on("click", (d: HorseInformation) => this.onClick(d.name));
         }
 
         if (displaySettings.displayName) {
             this.horseName = this.horseElements.append("text")
-            .text((d: HorseInformation) => d.name)
-            .attr("transform", "translate(" + this.startAndEndCircleRadius * 4 + ", 0)")
-            .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
-            .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
-            .attr("font-weight", "bold")
-            .attr("fill", (d: HorseInformation) => d.colour)
-            .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) / 2)
-            .style("font-size", this.textFont)
-            .style("font-family", this.fontFamily)
-            .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
-            .on("mouseout", this.onExitOfElement)
-            .on("click", (d: HorseInformation) => this.onClick(d.name));
+                .text((d: HorseInformation) => d.name)
+                .attr("transform", "translate(" + this.startAndEndCircleRadius * 4 + ", 0)")
+                .attr("x", (d: HorseInformation) => this.scales.xScale(d.values[0][0]))
+                .attr("y", (d: HorseInformation) => this.scales.yScale(parseInt(d.values[0][1])))
+                .attr("font-weight", "bold")
+                .attr("fill", (d: HorseInformation) => d.colour)
+                .attr("dy", parseInt(this.textFont.substr(0, this.textFont.length - 2)) / 2)
+                .style("font-size", this.textFont)
+                .style("font-family", this.fontFamily)
+                .on("mouseover", (d: HorseInformation) => this.onHoverOfElement(d.name))
+                .on("mouseout", this.onExitOfElement)
+                .on("click", (d: HorseInformation) => this.onClick(d.name));
         }
 
         //Set up the clip path to hide all lines at the start and the span the entire height of the graph
@@ -262,6 +353,14 @@ export class HorseRaceGraph {
             .attr("y", -this.scales.yScale(data.length) * 0.15)
             .attr("height", this.scales.yScale(data.length) * 1.3)
             .attr("width", 0);
+    }
+
+    private getCurrentAndNextValue(values: string[][]) {
+        let neededValues: string[][] = [];
+        neededValues.push(values[this.currentDomainElement - 1]);
+        neededValues.push(values[this.currentDomainElement]);
+
+        return neededValues;
     }
 
     /**
@@ -341,16 +440,46 @@ export class HorseRaceGraph {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr("id", "horseGraph");
 
+        this.height = height - margin.top - margin.bottom;
         this.scales = this.createScale(data, rankAsValues, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.values.length);
 
         //Add the clippath element for the movable elements
-        this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
+        if (rankAsValues) {
+            this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
             .attr("id", "clipPathForMovableElements")
             .append("rect")
             .attr("x", -margin.left)
             .attr("width", width + margin.left)
             .attr("y", -margin.top)
+            .attr("height", height + margin.top);
+        } else {
+            this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
+            .attr("id", "clipPathForMovableElements")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", 0)
+            .attr("height", height + margin.top);
+        }
+
+            
+        this.xAxisClipPath = this.elementsWithOffScreenComponent
+            .append("clipPath")
+            .attr("id", "xAxisClipPathElement")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -margin.top)
+            .attr("height", height + margin.top);
+        
+        this.svg
+            .append("clipPath")
+            .attr("id", "yAxisClipPathElement")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -5)
             .attr("height", height + margin.top);
 
         //Set up the line function
@@ -376,13 +505,19 @@ export class HorseRaceGraph {
         //Create the y scale, which will for now be based on ranks (linear numbers)
         var yScale;
         if (rankAsValues) {
-            yScale = d3.scaleLinear().domain([1, data.values.length])
-            .range([0, height]).nice();
+            yScale = d3.scaleLinear().domain([0.5, data.values.length + 0.5])
+                .range([0, height]);
         } else {
-            yScale = d3.scaleLinear().domain(this.getMinAndMax(data))
-            .range([0, height]).nice();
-        }
 
+            if (this.adjustedAxis) {
+                yScale = d3.scaleLinear()
+                    .domain([d3.max(this.data.values, (d: DataValue) => d.values[0] * this.maxOffSet), d3.min(this.data.values, (d: DataValue) => d.values[0]) * this.minOffSet])
+                    .range([0, this.height]);
+            } else {
+                yScale = d3.scaleLinear().domain(this.getMinAndMax(data, this.maxOffSet, this.minOffSet))
+                    .range([0, height]);
+            }
+        }
         return {
             xScale: xScale,
             yScale: yScale
@@ -391,13 +526,13 @@ export class HorseRaceGraph {
 
     /**
      * Retrieves the min and the max value of the data set and returns them as an
-     * array with the first value being the min and the second being the max
+     * array with the first value being the max and the second being the min
      */
-    private getMinAndMax(data: HorseGraphData): number[] {
+    private getMinAndMax(data: HorseGraphData, maxOffSet: number, minOffSet: number): number[] {
         let min = d3.min(data.values, (d: DataValue) => d3.min(d.values));
         let max = d3.max(data.values, (d: DataValue) => d3.max(d.values));
 
-        return [max, min];
+        return [max * maxOffSet, min * minOffSet];
     }
 
     /**
@@ -411,18 +546,44 @@ export class HorseRaceGraph {
         let colour = "black";
 
         //Append the y-axis first so that it appears behind the line elements
-        svg.append("g")
+        this.yAxis = svg.append("g")
             .attr("class", "yAxis")
             .style("color", colour)
-            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1));
-
+            .call(d3.axisLeft(scales.yScale).ticks(numberOfElemets - 1))
+            .attr("clip-path", "url(#yAxisClipPathElement)");
 
         //Now generate the elements off screen group, so all the lines will appear above the x-axis (will be under x-axis in DOM)
-        this.elementsWithOffScreenComponent = this.svg.append("g").attr("clip-path", "url(#clipPathForMovableElements)");
+        this.elementsWithOffScreenComponent = this.svg.append("g");
 
         this.elementsWithOffScreenComponent.append("g")
             .attr("class", "xAxis")
             .style("color", colour)
-            .call(d3.axisTop(scales.xScale));
+            .call(d3.axisTop(scales.xScale))
+            .attr("clip-path", "url(#xAxisClipPathElement)");
+
+    }
+
+    private updateYAxis() {
+        this.yAxis.transition()
+            .ease(d3.easeLinear)
+            .duration(this.transitionDuration)
+            .call(d3.axisLeft(this.scales.yScale).ticks(10));
+    }
+
+    private updateYScale(elementAtTheDomain: number, rankAsValue: boolean) {
+        debugger;
+        let max = d3.max(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
+        let min = d3.min(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
+        let maxMin;
+
+        if (rankAsValue) {
+            maxMin = [min - 0.5, max + 0.5];
+        } else {
+            maxMin = [max *  this.maxOffSet, min * this.minOffSet];
+        }
+
+        this.scales.yScale = d3.scaleLinear()
+            .domain(maxMin)
+            .range([0, this.height]);
     }
 }

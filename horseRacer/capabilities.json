@@ -52,6 +52,13 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "dynamicYAxis": {
+                    "displayName": "Dynamic Y-Axis",
+                    "description": "Make the Y-Axis dynamic, changing based on the current values and not global values",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
