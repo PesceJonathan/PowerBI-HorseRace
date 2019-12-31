@@ -36,6 +36,8 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
             domain.push(dataView.categorical.categories[0].values[i]);
         }
     }
+
+    debugger;
     let horses: DataValue[] = [];
 
     for (var i = 0; i < dataView.categorical.values.length; i++) {

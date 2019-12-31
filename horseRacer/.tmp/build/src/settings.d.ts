@@ -9,6 +9,7 @@ export declare class Data {
     dataSize: number;
     lineThickness: number;
     fontFamily: string;
+    axisFormat: string;
     displayText: boolean;
     displayRank: boolean;
     aggregateValues: boolean;

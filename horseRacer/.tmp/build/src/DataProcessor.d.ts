@@ -10,7 +10,7 @@ import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColo
  * That object will be sent to retrieve a rank and returned
  * @param dataView
  */
-export declare const DataProcessor: (dataView: powerbi.DataView, colorPalette: ISandboxExtendedColorPalette, isAggregate: boolean) => {
+export declare const DataProcessor: (dataView: powerbi.DataView, colorPalette: ISandboxExtendedColorPalette, isAggregate: boolean, optionIndex: string) => {
     domain: any[];
     numElements: number;
     values: DataValue[];

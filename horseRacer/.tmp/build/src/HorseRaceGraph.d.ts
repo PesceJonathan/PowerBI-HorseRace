@@ -31,6 +31,10 @@ export declare class HorseRaceGraph {
     private textFont;
     private data;
     private fontFamily;
+    private rankAsValue;
+    private structuredData;
+    private minOffSet;
+    private maxOffSet;
     private redraw;
     /**
      * Function that will render the horse racer visual onto the SVG and will
