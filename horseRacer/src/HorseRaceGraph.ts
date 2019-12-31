@@ -166,9 +166,6 @@ export class HorseRaceGraph {
                 .attr("d", (d: HorseInformation) => this.line(this.getCurrentAndNextValue(d.values)));
         }
 
-        
-
-
         this.horseStartCircles
             .transition()
             .ease(d3.easeLinear)
@@ -237,7 +234,7 @@ export class HorseRaceGraph {
                 .duration(this.transitionDuration)
                 .ease(d3.easeLinear)
                 .attr("x", this.scales.xScale(this.domain[this.currentDomainElement - this.numberOfElementsOnScreenAtOnce]));
-        }
+        } 
 
         if (this.currentDomainElement < this.domainLength) {
             this.transitionElement = this.transitionElement.transition().on("start", this.transitionSequence);
