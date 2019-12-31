@@ -5,8 +5,8 @@ import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualC
 var powerbiKey: any = "powerbi";
 var powerbi: any = window[powerbiKey];
 
-var horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG: IVisualPlugin = {
-    name: 'horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG',
+var horseRacer_DEBUG: IVisualPlugin = {
+    name: 'horseRacer_DEBUG',
     displayName: 'HorseRacer',
     class: 'Visual',
     apiVersion: '2.6.0',
@@ -23,7 +23,7 @@ var horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG: IVisualPlugin = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG"] = horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG;
+    powerbi.visuals.plugins["horseRacer_DEBUG"] = horseRacer_DEBUG;
 }
 
-export default horseRacer12E3AC64AD4242BC8735CBDF9617D71F_DEBUG;
+export default horseRacer_DEBUG;

@@ -1,1 +1,25 @@
-{"visual":{"name":"horseRacer","displayName":"HorseRacer","guid":"horseRacer12E3AC64AD4242BC8735CBDF9617D71F","visualClassName":"Visual","version":"1.0.0","description":"","supportUrl":"","gitHubUrl":""},"apiVersion":"2.6.0","author":{"name":"","email":""},"assets":{"icon":"assets/icon.png"},"externalJS":null,"style":"style/visual.less","capabilities":"capabilities.json","dependencies":null,"stringResources":[]}
+{
+    "visual": {
+        "name": "horseRacer",
+        "displayName": "HorseRacer",
+        "guid": "horseRacer",
+        "visualClassName": "Visual",
+        "version": "1.0.0",
+        "description": "Line graph horse racer, being a line graph where the lines are made to be look like they are racing each other, trying to fit for first place",
+        "supportUrl": "https://github.com/PesceJonathan/PowerBI-HorseRace",
+        "gitHubUrl": "https://github.com/PesceJonathan/PowerBI-HorseRace"
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "Jonathan Pesce",
+        "email": "jonathanpesce@hotmail.com"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": null,
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}

@@ -35,6 +35,8 @@ export class HorseRaceGraph {
     private textFont: string;
     private data: HorseGraphData;
     private fontFamily: string;
+    private rankAsValue: boolean;
+    private structuredData: HorseInformation[];
     private redraw: () => void;
 
     /**
@@ -61,6 +63,7 @@ export class HorseRaceGraph {
         this.adjustedAxis = settings.overall.dynamicYAxis;
         this.data = data;
         this.height = height;
+        this.rankAsValue = settings.overall.displayValuesOnAxis;
 
         //Bind the transition sequence function to this
         this.transitionSequence = this.transitionSequence.bind(this);
@@ -73,10 +76,10 @@ export class HorseRaceGraph {
         this.setUpGraph(svg, data, settings.overall.displayValuesOnAxis, width, height);
 
         //Set up the data
-        let structuredData: HorseInformation[] = this.generateStructuredData(data, settings.overall.displayValuesOnAxis);
+        this.structuredData = this.generateStructuredData(data, settings.overall.displayValuesOnAxis);
 
         //Append the elements in the starting position
-        this.SetUpInitialElements(structuredData, displaySettings);
+        this.SetUpInitialElements(this.structuredData, displaySettings);
 
         //Begin the transition of all the elements
         this.transitionElement = d3.transition()
@@ -116,7 +119,7 @@ export class HorseRaceGraph {
         if (this.adjustedAxis) {
             let oldYScale = this.scales.yScale;
 
-            this.updateYScale(this.currentDomainElement);
+            this.updateYScale(this.currentDomainElement, this.rankAsValue);
             this.updateYAxis();
 
             //Set up the line function
@@ -433,17 +436,29 @@ export class HorseRaceGraph {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr("id", "horseGraph");
 
+        this.height = height - margin.top - margin.bottom;
         this.scales = this.createScale(data, rankAsValues, width - margin.left - margin.right, height - margin.top - margin.bottom);
         this.generateAxis(this.svg, this.scales, data.values.length);
 
         //Add the clippath element for the movable elements
-        this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
+        if (rankAsValues) {
+            this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
+            .attr("id", "clipPathForMovableElements")
+            .append("rect")
+            .attr("x", -margin.left)
+            .attr("width", width + margin.left)
+            .attr("y", -margin.top)
+            .attr("height", height + margin.top);
+        } else {
+            this.offScreenElementsClipPath = this.elementsWithOffScreenComponent.append("clipPath")
             .attr("id", "clipPathForMovableElements")
             .append("rect")
             .attr("x", -margin.left)
             .attr("width", width + margin.left)
             .attr("y", 0)
             .attr("height", height + margin.top);
+        }
+
             
         this.xAxisClipPath = this.elementsWithOffScreenComponent
             .append("clipPath")
@@ -492,7 +507,7 @@ export class HorseRaceGraph {
 
             if (this.adjustedAxis) {
                 yScale = d3.scaleLinear()
-                    .domain([d3.max(this.data.values, (d: DataValue) => d.values[0]) * 1.05, d3.min(this.data.values, (d: DataValue) => d.values[0]) * 0.95])
+                    .domain([d3.max(this.data.values, (d: DataValue) => d.values[0]), d3.min(this.data.values, (d: DataValue) => d.values[0])])
                     .range([0, this.height])
                     .nice();
             } else {
@@ -553,9 +568,18 @@ export class HorseRaceGraph {
             .call(d3.axisLeft(this.scales.yScale).ticks(10));
     }
 
-    private updateYScale(elementAtTheDomain: number) {
+    private updateYScale(elementAtTheDomain: number, rankAsValue: boolean) {
+        debugger;
+        let max = d3.max(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
+        let min = d3.min(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
+        let maxMin = [max, min];
+
+        if (rankAsValue) {
+            maxMin = [min, max];
+        }
+
         this.scales.yScale = d3.scaleLinear()
-            .domain([d3.max(this.data.values, (d: DataValue) => d.values[elementAtTheDomain]) * 1.1, d3.min(this.data.values, (d: DataValue) => d.values[elementAtTheDomain]) * 0.9])
+            .domain(maxMin)
             .range([0, this.height])
             .nice();
     }
