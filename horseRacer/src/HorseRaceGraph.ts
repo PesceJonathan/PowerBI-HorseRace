@@ -568,7 +568,6 @@ export class HorseRaceGraph {
     }
 
     private updateYScale(elementAtTheDomain: number, rankAsValue: boolean) {
-        debugger;
         let max = d3.max(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
         let min = d3.min(this.structuredData, (d: HorseInformation) => +d.values[elementAtTheDomain][1]);
         let maxMin;

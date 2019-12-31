@@ -37,7 +37,6 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
         }
     }
 
-    debugger;
     let horses: DataValue[] = [];
 
     for (var i = 0; i < dataView.categorical.values.length; i++) {
@@ -78,9 +77,4 @@ export const DataProcessor = function(dataView: DataView, colorPalette: ISandbox
 
     data.values = GenerateRanks(data);
     return data;
-}
-
-function convertDate (date: Date) { 
-    var options = { weekday: 'undefined', year: 'numeric', month: 'short', day: 'numeric' };
-    console.log(date.toLocaleDateString("en-US", options));
 }
