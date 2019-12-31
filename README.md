@@ -8,6 +8,8 @@ This is a custom visual for the reporting tool Power BI. The visual is a horse r
 
 The project was inspired by the post made by mcrandall on the Power BI Community Forum found [here](https://community.powerbi.com/t5/Custom-Visuals-Ideas/Animated-Horse-Race/idi-p/637649#comments) and it was meant to replicate the visual made on [flourish](https://public.flourish.studio/visualisation/242330/).
 
+[Link to demo](https://youtu.be/MQAskFPR0mI)
+
 ## Installation
 Install to Contribute to Code:
 1. Fork the repository
