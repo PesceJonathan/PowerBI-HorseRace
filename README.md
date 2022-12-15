@@ -1,7 +1,7 @@
 # Horse Racer Power Bi Visual
 [![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com)
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)[![HitCount](http://hits.dwyl.io/PesceJonathan/PowerBI-HorseRace.svg)](http://hits.dwyl.io/PesceJonathan/PowerBI-HorseRace) [![Donation](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&amp;amp;style=flat)](https://paypal.me/JonathanPesce?locale.x=en_US)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)[![HitCount](http://hits.dwyl.io/PesceJonathan/PowerBI-HorseRace.svg)](http://hits.dwyl.io/PesceJonathan/PowerBI-HorseRace)
 ![Overview](https://raw.githubusercontent.com/PesceJonathan/PowerBI-HorseRace/master/imagesForDemo/Overview.PNG)
 ## Description
 This is a custom visual for the reporting tool Power BI. The visual is a horse racing line graph, which is essentially a line graph that is made to appear that the different categories/lines of the grah are racing to be on top. The visual comes with different settings that can change the appearance and functionality of the visual.
